@@ -40,7 +40,13 @@ static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
 
 static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
   ei_cnode *node;
+  VALUE argv[3];
+  argv[0] = host;
+  argv[1] = sname;
+  argv[2] = cookie;
+
   VALUE ruby_node = Data_Make_Struct(class, ei_cnode, 0, free, node);
+  rb_obj_call_init(ruby_node, 3, argv);
 }
 
 void Init_erl_node(){
