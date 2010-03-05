@@ -1,6 +1,6 @@
 #include "ruby.h"
-#include "erl_interface.h"
 #include "ei.h"
+#include "erl_interface.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,29 +24,26 @@ static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
   rb_iv_set(self, "@host", host);
   rb_iv_set(self, "@sname", sname);
   rb_iv_set(self, "@cookie", cookie);
-
-  /* the erlang cnode struct */
-  ei_cnode *node;
-  /* get the wrapped struct from the ruby object */
-  Data_Get_Struct(self, ei_cnode, node);
-  /* connect the node */
-  ei_connect_init(node, STR2CSTR(host), STR2CSTR(cookie), node_count++);
-
-/*   char buff[5]; */
-/*   sprintf(buff, "%d", ++node_count); */
-/*   char *node_count_str = strcat("c_", buff); */
-/*   b_iv_set(self, "@nodename", rb_str_new2(node_count_str)); */
 }
 
 static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
-  ei_cnode *node;
   VALUE argv[3];
   argv[0] = host;
   argv[1] = sname;
   argv[2] = cookie;
 
+  /* initialize the node */
+  ei_cnode *node;
+  const char *this_node_name = "ruby_node";
+
+  if(!ei_connect_init(node, this_node_name, RSTRING(cookie)->ptr, node_count++)){
+    rb_raise(rb_eRuntimeError, "Error initializing the node");
+  }
+
+  /* wrap the node and call initialize */
   VALUE ruby_node = Data_Make_Struct(class, ei_cnode, 0, free, node);
   rb_obj_call_init(ruby_node, 3, argv);
+  return ruby_node;
 }
 
 void Init_erl_node(){
