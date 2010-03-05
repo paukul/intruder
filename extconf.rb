@@ -1,13 +1,13 @@
 require 'mkmf'
 
-extension_name = 'invader'
+extension_name = 'intruder'
 
 dir_config(extension_name)
 
-findei=File.join(File.dirname(__FILE__),"findei.erl")
-File.chmod(0755,findei)
+findei = File.join(File.dirname(__FILE__), "findei.erl")
+File.chmod(0755, findei)
 
-ei_dir=`#{findei}`.chomp
+ei_dir = `#{findei}`.chomp
 include_dir = ei_dir + '/include/'
 lib_dir = ei_dir + '/lib/'
 

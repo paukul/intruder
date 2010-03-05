@@ -4,6 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-void Init_invader(){
-  Init_invader_node();
+void Init_intruder(){
+  Init_intruder_node();
 }

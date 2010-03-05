@@ -8,15 +8,15 @@
  */
 #include "node.h"
 
-VALUE InvaderNode = Qnil;
-VALUE InvaderException = Qnil;
+VALUE IntruderNode = Qnil;
+VALUE IntruderException = Qnil;
 int node_count = 0;
 
 /* internal methods */
 static void declare_attr_accessors();
 
 /* implementation */
-VALUE invader_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
+VALUE intruder_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
   CLASS_STRUCT;
   rb_iv_set(self, "@host", host);
   rb_iv_set(self, "@sname", sname);
@@ -31,19 +31,19 @@ VALUE invader_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
   return self;
 }
 
-VALUE invader_node_pid(VALUE self){
+VALUE intruder_node_pid(VALUE self){
   CLASS_STRUCT;
   erlang_pid *pid = ei_self(class_struct->cnode);
   return INT2FIX(pid->num);
 }
 
-VALUE invader_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
+VALUE intruder_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
   VALUE argv[3];
   argv[0] = host;
   argv[1] = sname;
   argv[2] = cookie;
 
-  struct invader_node *class_struct = malloc(sizeof(struct invader_node));
+  struct intruder_node *class_struct = malloc(sizeof(struct intruder_node));
   class_struct->cnode = malloc(sizeof(ei_cnode));
 
   /* leak leak leak?? */
@@ -52,9 +52,9 @@ VALUE invader_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
   return class_instance;
 }
 
-VALUE invader_node_connect(VALUE self, VALUE remote_node){
-  struct invader_node *class_struct;
-  Data_Get_Struct(self, struct invader_node, class_struct);
+VALUE intruder_node_connect(VALUE self, VALUE remote_node){
+  struct intruder_node *class_struct;
+  Data_Get_Struct(self, struct intruder_node, class_struct);
 
   if(ei_connect(class_struct->cnode, RSTRING(remote_node)->ptr) < 0){
 
@@ -66,13 +66,13 @@ VALUE invader_node_connect(VALUE self, VALUE remote_node){
     switch( erl_errno )
       {
       case EHOSTUNREACH :
-        rb_raise(InvaderException, "Host unreachable");
+        rb_raise(IntruderException, "Host unreachable");
         break;
       case ENOMEM :
-        rb_raise(InvaderException, "Memory Error");
+        rb_raise(IntruderException, "Memory Error");
         break;
       case EIO :
-        rb_raise(InvaderException, "IO error");
+        rb_raise(IntruderException, "IO error");
         break;
       }
   }
@@ -80,20 +80,20 @@ VALUE invader_node_connect(VALUE self, VALUE remote_node){
   return Qtrue;
 }
 
-void Init_invader_node(){
-  InvaderNode = rb_define_class("InvaderNode", rb_cObject);
+void Init_intruder_node(){
+  IntruderNode = rb_define_class("IntruderNode", rb_cObject);
   declare_attr_accessors();
 
   /* class methods */
-  rb_define_singleton_method(InvaderNode, "new", invader_node_new, 3);
+  rb_define_singleton_method(IntruderNode, "new", intruder_node_new, 3);
 
   /* instance methods */
-  rb_define_method(InvaderNode, "initialize", invader_node_init, 3);
-  rb_define_method(InvaderNode, "connect", invader_node_connect, 1);
-  rb_define_method(InvaderNode, "pid", invader_node_pid, 0);
+  rb_define_method(IntruderNode, "initialize", intruder_node_init, 3);
+  rb_define_method(IntruderNode, "connect", intruder_node_connect, 1);
+  rb_define_method(IntruderNode, "pid", intruder_node_pid, 0);
 
   /* exceptions */
-  InvaderException = rb_define_class("InvaderNodeException", rb_eRuntimeError);
+  IntruderException = rb_define_class("IntruderNodeException", rb_eRuntimeError);
 }
 
 static void declare_attr_accessors(){
@@ -106,5 +106,5 @@ static void declare_attr_accessors(){
   for(; i <= 2; i++){
     params[i] = ID2SYM(rb_intern(i_vars[i]));
   }
-  rb_funcall2(InvaderNode, attr_accessor, 3, params);
+  rb_funcall2(IntruderNode, attr_accessor, 3, params);
 }
