@@ -24,6 +24,12 @@ VALUE ErlNode = Qnil;
 VALUE ErlException = Qnil;
 int node_count = 0;
 
+struct ruby_node
+{
+  ei_cnode *cnode;
+  int fd;         /* file descriptor for the communication with the epmd */
+};
+
 /* prototypes */
 void Init_erl_node();
 
@@ -42,38 +48,45 @@ static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
   rb_iv_set(self, "@host", host);
   rb_iv_set(self, "@sname", sname);
   rb_iv_set(self, "@cookie", cookie);
+
+  struct ruby_node *class_struct;
+  Data_Get_Struct(self, struct ruby_node, class_struct);
+
+  /* initialize the node */
+  if(ei_connect_init(class_struct->cnode, RSTRING(sname)->ptr, RSTRING(cookie)->ptr, node_count++) < 0){
+    free(class_struct->cnode);
+    rb_raise(rb_eRuntimeError, "Error initializing the node");
+  }
+
   return self;
 }
 
 static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
-  /* initialize the node */
-  ei_cnode *node = malloc(sizeof(ei_cnode));
-
-  if(ei_connect_init(node, "ruby_node", RSTRING(cookie)->ptr, node_count++) < 0){
-    free(node);
-    rb_raise(rb_eRuntimeError, "Error initializing the node");
-  }
-
-  /* wrap the node and call initialize */
   VALUE argv[3];
   argv[0] = host;
   argv[1] = sname;
   argv[2] = cookie;
 
-  VALUE ruby_node = Data_Make_Struct(class, ei_cnode, 0, free, node);
-  rb_obj_call_init(ruby_node, 3, argv);
-  return ruby_node;
+  struct ruby_node *class_struct = malloc(sizeof(struct ruby_node));
+  class_struct->cnode = malloc(sizeof(ei_cnode));
+
+  /* leak leak leak?? */
+  VALUE class_instance = Data_Wrap_Struct(class, 0, free, class_struct);
+  rb_obj_call_init(class_instance, 3, argv);
+  return class_instance;
 }
 
 static VALUE erl_connect(VALUE self, VALUE remote_node){
-  ei_cnode *node;
-  Data_Get_Struct(self, ei_cnode, node);
+  struct ruby_node *class_struct;
+  Data_Get_Struct(self, struct ruby_node, class_struct);
 
-  if(ei_connect(node, RSTRING(remote_node)->ptr) < 0){
+  if(ei_connect(class_struct->cnode, RSTRING(remote_node)->ptr) < 0){
+
     DEBUG("Result: %d\n", erl_errno);
     DEBUG("ERHOSTUNREACH: %d\n", EHOSTUNREACH);
     DEBUG("ENOMEM: %d\n", ENOMEM);
     DEBUG("EIO: %d\n", EIO);
+
     switch( erl_errno )
       {
       case EHOSTUNREACH :
@@ -88,7 +101,7 @@ static VALUE erl_connect(VALUE self, VALUE remote_node){
       }
   }
 
-  return Qnil;
+  return Qtrue;
 }
 
 void Init_erl_node(){

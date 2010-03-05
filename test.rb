@@ -6,6 +6,6 @@ require 'erl_node'
 # debugger
 n = ErlNode.new('nb-pfriederich', 'foo', File.read(File.expand_path('~/.erlang.cookie')))
 p n.cookie
-n.connect('rabbit@nb-pfriederich')
+puts "connceted!" if n.connect('rabbit@nb-pfriederich')
 
 #p n.node
