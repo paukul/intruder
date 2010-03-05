@@ -1,6 +1,6 @@
 #include "ruby.h"
+#include "ei_connect.h"
 #include "ei.h"
-#include "erl_interface.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,6 +24,7 @@ static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
   rb_iv_set(self, "@host", host);
   rb_iv_set(self, "@sname", sname);
   rb_iv_set(self, "@cookie", cookie);
+  return self;
 }
 
 static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
