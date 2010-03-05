@@ -1,19 +1,3 @@
-#include "ruby.h"
-#include "ei_connect.h"
-#include "ei.h"
-
-/* common imports */
-#include <stdlib.h>
-#include <string.h>
-
-#define ERL_NODE_DEBUG
-
-#ifdef ERL_NODE_DEBUG
-#define DEBUG(fmt, args...) printf(fmt, ##args)
-#else
-#define DEBUG(fmt, args...)
-#endif
-
 /*
  * Helpfull stuff:
  * Erl_interface doku: http://erlang.mirror.su.se/doc/man/ei_connect.html
@@ -22,37 +6,21 @@
  * Extending ruby (german): http://home.vrweb.de/~juergen.katins/ruby/buch/ext_ruby.html
  * http://www.eqqon.com/index.php/Ruby_C_Extension#debug
  */
-VALUE ErlNode = Qnil;
-VALUE ErlException = Qnil;
+#include "node.h"
+
+VALUE InvaderNode = Qnil;
+VALUE InvaderException = Qnil;
 int node_count = 0;
-
-struct ruby_node
-{
-  ei_cnode *cnode;
-  int fd;         /* file descriptor for the communication with the epmd */
-};
-
-/* prototypes */
-void Init_erl_node();
-
-/* ruby instance methods */
-static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie);
-static VALUE erl_connect(VALUE self, VALUE remote_node);
-
-/* ruby class methods */
-static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie);
 
 /* internal methods */
 static void declare_attr_accessors();
 
 /* implementation */
-static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
+VALUE invader_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
+  CLASS_STRUCT;
   rb_iv_set(self, "@host", host);
   rb_iv_set(self, "@sname", sname);
   rb_iv_set(self, "@cookie", cookie);
-
-  struct ruby_node *class_struct;
-  Data_Get_Struct(self, struct ruby_node, class_struct);
 
   /* initialize the node */
   if(ei_connect_init(class_struct->cnode, RSTRING(sname)->ptr, RSTRING(cookie)->ptr, node_count++) < 0){
@@ -63,13 +31,19 @@ static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
   return self;
 }
 
-static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
+VALUE invader_node_pid(VALUE self){
+  CLASS_STRUCT;
+  erlang_pid *pid = ei_self(class_struct->cnode);
+  return INT2FIX(pid->num);
+}
+
+VALUE invader_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
   VALUE argv[3];
   argv[0] = host;
   argv[1] = sname;
   argv[2] = cookie;
 
-  struct ruby_node *class_struct = malloc(sizeof(struct ruby_node));
+  struct invader_node *class_struct = malloc(sizeof(struct invader_node));
   class_struct->cnode = malloc(sizeof(ei_cnode));
 
   /* leak leak leak?? */
@@ -78,9 +52,9 @@ static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
   return class_instance;
 }
 
-static VALUE erl_connect(VALUE self, VALUE remote_node){
-  struct ruby_node *class_struct;
-  Data_Get_Struct(self, struct ruby_node, class_struct);
+VALUE invader_node_connect(VALUE self, VALUE remote_node){
+  struct invader_node *class_struct;
+  Data_Get_Struct(self, struct invader_node, class_struct);
 
   if(ei_connect(class_struct->cnode, RSTRING(remote_node)->ptr) < 0){
 
@@ -92,13 +66,13 @@ static VALUE erl_connect(VALUE self, VALUE remote_node){
     switch( erl_errno )
       {
       case EHOSTUNREACH :
-        rb_raise(ErlException, "Host unreachable");
+        rb_raise(InvaderException, "Host unreachable");
         break;
       case ENOMEM :
-        rb_raise(ErlException, "Memory Error");
+        rb_raise(InvaderException, "Memory Error");
         break;
       case EIO :
-        rb_raise(ErlException, "IO error");
+        rb_raise(InvaderException, "IO error");
         break;
       }
   }
@@ -106,23 +80,24 @@ static VALUE erl_connect(VALUE self, VALUE remote_node){
   return Qtrue;
 }
 
-void Init_erl_node(){
-  ErlNode = rb_define_class("ErlNode", rb_cObject);
+void Init_invader_node(){
+  InvaderNode = rb_define_class("InvaderNode", rb_cObject);
   declare_attr_accessors();
 
   /* class methods */
-  rb_define_singleton_method(ErlNode, "new", erl_node_new, 3);
+  rb_define_singleton_method(InvaderNode, "new", invader_node_new, 3);
 
   /* instance methods */
-  rb_define_method(ErlNode, "initialize", erl_node_init, 3);
-  rb_define_method(ErlNode, "connect", erl_connect, 1);
+  rb_define_method(InvaderNode, "initialize", invader_node_init, 3);
+  rb_define_method(InvaderNode, "connect", invader_node_connect, 1);
+  rb_define_method(InvaderNode, "pid", invader_node_pid, 0);
 
   /* exceptions */
-  ErlException = rb_define_class("ErlNodeException", rb_eRuntimeError);
+  InvaderException = rb_define_class("InvaderNodeException", rb_eRuntimeError);
 }
 
 static void declare_attr_accessors(){
-  ID attr_accessor = rb_intern("attr_accessor");
+  ID attr_accessor = rb_intern("attr_reader");
 
   char  *i_vars[3] = {"host", "cookie", "sname"};
   VALUE params[3];
@@ -131,5 +106,5 @@ static void declare_attr_accessors(){
   for(; i <= 2; i++){
     params[i] = ID2SYM(rb_intern(i_vars[i]));
   }
-  rb_funcall2(ErlNode, attr_accessor, 3, params);
+  rb_funcall2(InvaderNode, attr_accessor, 3, params);
 }
