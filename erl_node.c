@@ -19,6 +19,7 @@
  * Erl_interface doku: http://erlang.mirror.su.se/doc/man/ei_connect.html
  * http://erlang.org/pipermail/erlang-questions/2003-August/009536.html
  * Erlix discussion: http://www.mentby.com/Group/ruby-talk/ruby-interface-of-erlang.html
+ * Extending ruby (german): http://home.vrweb.de/~juergen.katins/ruby/buch/ext_ruby.html
  */
 VALUE ErlNode = Qnil;
 VALUE ErlException = Qnil;
