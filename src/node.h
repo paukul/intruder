@@ -13,12 +13,16 @@
 #define DEBUG(fmt, args...)
 #endif
 
+#define INTRUDER_CONNECTED 0
+#define INTRUDER_DISCONNECTED 1
+
 #define CLASS_STRUCT struct intruder_node *class_struct; Data_Get_Struct(self, struct intruder_node, class_struct)
 
 struct intruder_node
 {
   ei_cnode *cnode;
   int fd;         /* file descriptor for the communication with the epmd */
+  int status;
 };
 
 /* prototypes */

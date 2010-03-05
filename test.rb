@@ -7,7 +7,9 @@ require 'intruder'
 n = IntruderNode.new('codeslave', 'foo', File.read(File.expand_path('~/.erlang.cookie')))
 
 # p n.cookie
-puts "connceted!" if n.connect('rabbit@codeslave')
+p n.status
+n.connect('rabbit@codeslave')
+p n.status
 
-puts n.pid
+puts "Pid: " + n.pid.to_s
 #p n.node

@@ -7,6 +7,7 @@
  * http://www.eqqon.com/index.php/Ruby_C_Extension#debug
  */
 #include "node.h"
+#define STOSYM(string) ID2SYM(rb_intern(string))
 
 VALUE IntruderNode = Qnil;
 VALUE IntruderException = Qnil;
@@ -31,6 +32,14 @@ VALUE intruder_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
   return self;
 }
 
+VALUE intruder_node_status(VALUE self){
+  CLASS_STRUCT;
+  if(class_struct->status == INTRUDER_CONNECTED)
+    return STOSYM("connected");
+  else
+    return STOSYM("disconnected");
+}
+
 VALUE intruder_node_pid(VALUE self){
   CLASS_STRUCT;
   erlang_pid *pid = ei_self(class_struct->cnode);
@@ -45,6 +54,7 @@ VALUE intruder_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
 
   struct intruder_node *class_struct = malloc(sizeof(struct intruder_node));
   class_struct->cnode = malloc(sizeof(ei_cnode));
+  class_struct->status = INTRUDER_DISCONNECTED;
 
   /* leak leak leak?? */
   VALUE class_instance = Data_Wrap_Struct(class, 0, free, class_struct);
@@ -76,7 +86,7 @@ VALUE intruder_node_connect(VALUE self, VALUE remote_node){
         break;
       }
   }
-
+  class_struct->status = INTRUDER_CONNECTED;
   return Qtrue;
 }
 
@@ -91,6 +101,7 @@ void Init_intruder_node(){
   rb_define_method(IntruderNode, "initialize", intruder_node_init, 3);
   rb_define_method(IntruderNode, "connect", intruder_node_connect, 1);
   rb_define_method(IntruderNode, "pid", intruder_node_pid, 0);
+  rb_define_method(IntruderNode, "status", intruder_node_status, 0);
 
   /* exceptions */
   IntruderException = rb_define_class("IntruderNodeException", rb_eRuntimeError);
@@ -104,7 +115,7 @@ static void declare_attr_accessors(){
 
   int i = 0;
   for(; i <= 2; i++){
-    params[i] = ID2SYM(rb_intern(i_vars[i]));
+    params[i] = STOSYM(i_vars[i]);
   }
   rb_funcall2(IntruderNode, attr_accessor, 3, params);
 }
