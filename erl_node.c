@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * Helpfull stuff:
+ * http://erlang.mirror.su.se/doc/man/ei_connect.html
+ * http://erlang.org/pipermail/erlang-questions/2003-August/009536.html
+ */
 VALUE ErlNode = Qnil;
 int node_count = 0;
 
