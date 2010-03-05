@@ -28,20 +28,20 @@ static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
 }
 
 static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
+  /* initialize the node */
+  ei_cnode *node;
+  const char *this_node_name = "ruby_node";
+
+  if(ei_connect_init(node, this_node_name, RSTRING(cookie)->ptr, node_count++) < 0){
+    rb_raise(rb_eRuntimeError, "Error initializing the node");
+  }
+
+  /* wrap the node and call initialize */
   VALUE argv[3];
   argv[0] = host;
   argv[1] = sname;
   argv[2] = cookie;
 
-  /* initialize the node */
-  ei_cnode *node;
-  const char *this_node_name = "ruby_node";
-
-  if(!ei_connect_init(node, this_node_name, RSTRING(cookie)->ptr, node_count++)){
-    rb_raise(rb_eRuntimeError, "Error initializing the node");
-  }
-
-  /* wrap the node and call initialize */
   VALUE ruby_node = Data_Make_Struct(class, ei_cnode, 0, free, node);
   rb_obj_call_init(ruby_node, 3, argv);
   return ruby_node;
