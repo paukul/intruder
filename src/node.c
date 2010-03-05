@@ -12,6 +12,7 @@
 VALUE IntruderNode = Qnil;
 VALUE IntruderException = Qnil;
 int node_count = 0;
+extern VALUE IntruderModule;
 
 /* internal methods */
 static void declare_attr_accessors();
@@ -91,7 +92,7 @@ VALUE intruder_node_connect(VALUE self, VALUE remote_node){
 }
 
 void Init_intruder_node(){
-  IntruderNode = rb_define_class("IntruderNode", rb_cObject);
+  IntruderNode = rb_define_class_under(IntruderModule, "Node", rb_cObject);
   declare_attr_accessors();
 
   /* class methods */
@@ -104,7 +105,7 @@ void Init_intruder_node(){
   rb_define_method(IntruderNode, "status", intruder_node_status, 0);
 
   /* exceptions */
-  IntruderException = rb_define_class("IntruderNodeException", rb_eRuntimeError);
+  IntruderException = rb_define_class_under(IntruderModule, "NodeException", rb_eRuntimeError);
 }
 
 static void declare_attr_accessors(){
