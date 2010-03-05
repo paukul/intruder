@@ -1,15 +1,27 @@
 #include "ruby.h"
 #include "ei_connect.h"
 #include "ei.h"
+
+/* common imports */
 #include <stdlib.h>
 #include <string.h>
 
+#define ERL_NODE_DEBUG
+
+#ifdef ERL_NODE_DEBUG
+#define DEBUG(fmt, args...) printf(fmt, ##args)
+#else
+#define DEBUG(fmt, args...)
+#endif
+
 /*
  * Helpfull stuff:
- * http://erlang.mirror.su.se/doc/man/ei_connect.html
+ * Erl_interface doku: http://erlang.mirror.su.se/doc/man/ei_connect.html
  * http://erlang.org/pipermail/erlang-questions/2003-August/009536.html
+ * Erlix discussion: http://www.mentby.com/Group/ruby-talk/ruby-interface-of-erlang.html
  */
 VALUE ErlNode = Qnil;
+VALUE ErlException = Qnil;
 int node_count = 0;
 
 /* prototypes */
@@ -17,6 +29,7 @@ void Init_erl_node();
 
 /* ruby instance methods */
 static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie);
+static VALUE erl_connect(VALUE self, VALUE remote_node);
 
 /* ruby class methods */
 static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie);
@@ -34,10 +47,10 @@ static VALUE erl_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
 
 static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
   /* initialize the node */
-  ei_cnode *node;
-  const char *this_node_name = "ruby_node";
+  ei_cnode *node = malloc(sizeof(ei_cnode));
 
-  if(ei_connect_init(node, this_node_name, RSTRING(cookie)->ptr, node_count++) < 0){
+  if(ei_connect_init(node, "ruby_node", RSTRING(cookie)->ptr, node_count++) < 0){
+    free(node);
     rb_raise(rb_eRuntimeError, "Error initializing the node");
   }
 
@@ -52,6 +65,32 @@ static VALUE erl_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
   return ruby_node;
 }
 
+static VALUE erl_connect(VALUE self, VALUE remote_node){
+  ei_cnode *node;
+  Data_Get_Struct(self, ei_cnode, node);
+
+  if(ei_connect(node, RSTRING(remote_node)->ptr) < 0){
+    DEBUG("Result: %d\n", erl_errno);
+    DEBUG("ERHOSTUNREACH: %d\n", EHOSTUNREACH);
+    DEBUG("ENOMEM: %d\n", ENOMEM);
+    DEBUG("EIO: %d\n", EIO);
+    switch( erl_errno )
+      {
+      case EHOSTUNREACH :
+        rb_raise(ErlException, "Host unreachable");
+        break;
+      case ENOMEM :
+        rb_raise(ErlException, "Memory Error");
+        break;
+      case EIO :
+        rb_raise(ErlException, "IO error");
+        break;
+      }
+  }
+
+  return Qnil;
+}
+
 void Init_erl_node(){
   ErlNode = rb_define_class("ErlNode", rb_cObject);
   declare_attr_accessors();
@@ -61,6 +100,10 @@ void Init_erl_node(){
 
   /* instance methods */
   rb_define_method(ErlNode, "initialize", erl_node_init, 3);
+  rb_define_method(ErlNode, "connect", erl_connect, 1);
+
+  /* exceptions */
+  ErlException = rb_define_class("ErlNodeException", rb_eRuntimeError);
 }
 
 static void declare_attr_accessors(){
