@@ -2,8 +2,10 @@
 #define INTRUDER_NODE_H
 
 #include "ruby.h"
-#include "ei_connect.h"
+#include "erl_interface.h"
 #include "ei.h"
+
+#include "intruder_ext.h"
 
 #define INTRUDER_DEBUG
 

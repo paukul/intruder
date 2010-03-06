@@ -60,27 +60,11 @@ VALUE intruder_node_pid(VALUE self){
 VALUE intruder_node_connect(VALUE self, VALUE remote_node){
   struct intruder_node *class_struct;
   Data_Get_Struct(self, struct intruder_node, class_struct);
+  int fd;
 
-  if(ei_connect(class_struct->cnode, RSTRING(remote_node)->ptr) < 0){
+  if((class_struct->fd = ei_connect(class_struct->cnode, RSTRING(remote_node)->ptr)) < 0)
+    raise_rException_for_erl_errno();
 
-    DEBUG("Result: %d\n", erl_errno);
-    DEBUG("ERHOSTUNREACH: %d\n", EHOSTUNREACH);
-    DEBUG("ENOMEM: %d\n", ENOMEM);
-    DEBUG("EIO: %d\n", EIO);
-
-    switch( erl_errno )
-      {
-      case EHOSTUNREACH :
-        rb_raise(IntruderException, "Host unreachable");
-        break;
-      case ENOMEM :
-        rb_raise(IntruderException, "Memory Error");
-        break;
-      case EIO :
-        rb_raise(IntruderException, "IO error");
-        break;
-      }
-  }
   class_struct->status = INTRUDER_CONNECTED;
   return Qtrue;
 }

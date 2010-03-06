@@ -5,11 +5,11 @@ n = Intruder::Node.new('codeslave', 'foo', File.read(File.expand_path('~/.erlang
 
 p n.status
 n.connect('rabbit@codeslave')
-p n.status
+# p n.status
 
-m = n.mod('rabbit_server')
-p m
-m.i_do_nothing('yet')
+m = n.mod('rabbit')
+# p m
+m.status('yet')
 # m.status(['/'])
 
 puts "Pid: " + n.pid.to_s
