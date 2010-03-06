@@ -28,9 +28,8 @@ VALUE intruder_node_alloc(VALUE class){
   return obj;
 }
 
-VALUE intruder_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
+VALUE intruder_node_init(VALUE self, VALUE sname, VALUE cookie){
   CLASS_STRUCT;
-  rb_iv_set(self, "@host", host);
   rb_iv_set(self, "@sname", sname);
   rb_iv_set(self, "@cookie", cookie);
 
@@ -77,7 +76,7 @@ void Init_intruder_node(){
   rb_define_alloc_func(IntruderNode, intruder_node_alloc);
 
   /* instance methods */
-  rb_define_method(IntruderNode, "initialize", intruder_node_init, 3);
+  rb_define_method(IntruderNode, "initialize", intruder_node_init, 2);
   rb_define_method(IntruderNode, "connect", intruder_node_connect, 1);
   rb_define_method(IntruderNode, "pid", intruder_node_pid, 0);
   rb_define_method(IntruderNode, "status", intruder_node_status, 0);
@@ -89,12 +88,12 @@ void Init_intruder_node(){
 static void declare_attr_accessors(){
   ID attr_accessor = rb_intern("attr_reader");
 
-  char  *i_vars[3] = {"host", "cookie", "sname"};
-  VALUE params[3];
+  char  *i_vars[2] = {"cookie", "sname"};
+  VALUE params[2];
 
   int i = 0;
-  for(; i <= 2; i++){
+  for(; i <= 1; i++){
     params[i] = STOSYM(i_vars[i]);
   }
-  rb_funcall2(IntruderNode, attr_accessor, 3, params);
+  rb_funcall2(IntruderNode, attr_accessor, 2, params);
 }

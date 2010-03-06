@@ -40,12 +40,7 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   DEBUG("rpc call to %s:%s\n", mod, RSTRING(fun)->ptr);
   ret = ei_rpc(in_s->cnode, in_s->fd, mod, RSTRING(fun)->ptr, rpcargs.buff, rpcargs.index, &result);
   if(ret < 0)
-    {
-      DEBUG("error during rpc call. errno: %d\n", erl_errno);
-      raise_rException_for_erl_errno();
-    }
-
-  DEBUG("Erl resp code: %d\n", ret);
+    raise_rException_for_erl_errno();
 
   return Qnil;
 }
