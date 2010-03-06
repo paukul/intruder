@@ -1,6 +1,6 @@
 require 'mkmf'
 
-extension_name = 'intruder'
+extension_name = 'intruder_ext'
 
 dir_config(extension_name)
 

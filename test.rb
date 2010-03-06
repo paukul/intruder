@@ -7,5 +7,9 @@ p n.status
 n.connect('rabbit@codeslave')
 p n.status
 
+m = n.mod('rabbit_server')
+p m
+# m.status(['/'])
+
 puts "Pid: " + n.pid.to_s
 

@@ -31,6 +31,7 @@ void Init_intruder_node();
 /* ruby instance methods */
 VALUE intruder_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie);
 VALUE intruder_node_connect(VALUE self, VALUE remote_node);
+/* VALUE intruder_node_mod(VALUE self, VALUE mod_name); */
 
 /* ruby class methods */
 VALUE intruder_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie);
