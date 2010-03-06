@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+extconf = File.expand_path('../extconf.rb', __FILE__)
+srcpath = File.expand_path('../src/', __FILE__)
+
+puts `ruby #{extconf} --srcdir=#{srcpath}`
