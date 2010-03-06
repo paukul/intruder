@@ -8,4 +8,13 @@ module Intruder
     end
   end
 
+  class Mod
+
+    private
+
+    def method_missing(method, *args)
+      rpc(method.to_s, *args)
+    end
+  end
+  
 end

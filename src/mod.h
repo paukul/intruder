@@ -14,5 +14,6 @@ void Init_intruder_mod();
 
 VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node);
 VALUE intruder_mod_alloc(VALUE self);
+VALUE private_intruder_mod_rpc(VALUE self, VALUE args);
 
 #endif

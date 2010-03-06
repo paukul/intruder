@@ -9,6 +9,7 @@ p n.status
 
 m = n.mod('rabbit_server')
 p m
+m.i_do_nothing('yet')
 # m.status(['/'])
 
 puts "Pid: " + n.pid.to_s
