@@ -18,6 +18,16 @@ extern VALUE IntruderModule;
 static void declare_attr_accessors();
 
 /* implementation */
+VALUE intruder_node_alloc(VALUE class){
+  struct intruder_node *class_struct = malloc(sizeof(struct intruder_node));
+  class_struct->cnode = malloc(sizeof(ei_cnode));
+  class_struct->status = INTRUDER_DISCONNECTED;
+
+  /* leak leak leak?? Check back with stkaes */
+  VALUE obj = Data_Wrap_Struct(class, 0, free, class_struct);
+  return obj;
+}
+
 VALUE intruder_node_init(VALUE self, VALUE host, VALUE sname, VALUE cookie){
   CLASS_STRUCT;
   rb_iv_set(self, "@host", host);
@@ -45,16 +55,6 @@ VALUE intruder_node_pid(VALUE self){
   CLASS_STRUCT;
   erlang_pid *pid = ei_self(class_struct->cnode);
   return INT2FIX(pid->num);
-}
-
-VALUE intruder_node_alloc(VALUE class){
-  struct intruder_node *class_struct = malloc(sizeof(struct intruder_node));
-  class_struct->cnode = malloc(sizeof(ei_cnode));
-  class_struct->status = INTRUDER_DISCONNECTED;
-
-  /* leak leak leak?? Check back with stkaes */
-  VALUE obj = Data_Wrap_Struct(class, 0, free, class_struct);
-  return obj;
 }
 
 VALUE intruder_node_connect(VALUE self, VALUE remote_node){
