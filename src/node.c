@@ -47,20 +47,14 @@ VALUE intruder_node_pid(VALUE self){
   return INT2FIX(pid->num);
 }
 
-VALUE intruder_node_new(VALUE class, VALUE host, VALUE sname, VALUE cookie){
-  VALUE argv[3];
-  argv[0] = host;
-  argv[1] = sname;
-  argv[2] = cookie;
-
+VALUE intruder_node_alloc(VALUE class){
   struct intruder_node *class_struct = malloc(sizeof(struct intruder_node));
   class_struct->cnode = malloc(sizeof(ei_cnode));
   class_struct->status = INTRUDER_DISCONNECTED;
 
-  /* leak leak leak?? */
-  VALUE class_instance = Data_Wrap_Struct(class, 0, free, class_struct);
-  rb_obj_call_init(class_instance, 3, argv);
-  return class_instance;
+  /* leak leak leak?? Check back with stkaes */
+  VALUE obj = Data_Wrap_Struct(class, 0, free, class_struct);
+  return obj;
 }
 
 VALUE intruder_node_connect(VALUE self, VALUE remote_node){
@@ -96,7 +90,7 @@ void Init_intruder_node(){
   declare_attr_accessors();
 
   /* class methods */
-  rb_define_singleton_method(IntruderNode, "new", intruder_node_new, 3);
+  rb_define_alloc_func(IntruderNode, intruder_node_alloc);
 
   /* instance methods */
   rb_define_method(IntruderNode, "initialize", intruder_node_init, 3);
