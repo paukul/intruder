@@ -9,10 +9,10 @@
 #include "node.h"
 
 
-struct intruder_mod
+typedef struct intruder_mod
 {
   ei_cnode *node;
-};
+} INTRUDER_MOD;
 
 void Init_intruder_mod();
 

@@ -11,7 +11,7 @@ VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node){
 }
 
 VALUE intruder_mod_alloc(VALUE class){
-  struct intruder_mod *im = (struct intruder_mod*)malloc(sizeof(struct intruder_mod));
+  INTRUDER_MOD *im = (INTRUDER_MOD*)malloc(sizeof(INTRUDER_MOD));
   VALUE obj;
   obj = Data_Wrap_Struct(class, 0, free, im);
   return obj;
@@ -25,8 +25,8 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   char *mod = RSTRING(rb_iv_get(self, "@modname"))->ptr;
   int ret;
   /* get the data struct of the Intruder::Node in the Intruder::Mod */
-  struct intruder_node *in_s;
-  Data_Get_Struct(rb_iv_get(self, "@node"), struct intruder_node, in_s);
+  INTRUDER_NODE *in_s;
+  Data_Get_Struct(rb_iv_get(self, "@node"), INTRUDER_NODE, in_s);
 
   /* prepare the erlang stuff (wtf o_O) */
   int index = 0;
