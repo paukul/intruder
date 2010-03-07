@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* TODO in den header*/
 VALUE IntruderModule = Qnil;
 extern VALUE IntruderException;
 

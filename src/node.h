@@ -1,3 +1,4 @@
+/* FIXME node.h =schlechte idee, umbenennen */
 #ifndef INTRUDER_NODE_H
 #define INTRUDER_NODE_H
 
@@ -20,12 +21,12 @@
 
 #define CLASS_STRUCT struct intruder_node *class_struct; Data_Get_Struct(self, struct intruder_node, class_struct)
 
-struct intruder_node
+typedef struct intruder_node
 {
   ei_cnode *cnode;
   int fd;         /* file descriptor for the communication with the epmd */
   int status;
-};
+} INTRUDER_NODE;
 
 /* prototypes */
 void Init_intruder_node();

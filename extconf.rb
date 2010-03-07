@@ -11,8 +11,8 @@ ei_dir = `#{findei}`.chomp
 include_dir = ei_dir + '/include/'
 lib_dir = ei_dir + '/lib/'
 
-$LDFLAGS << "-L#{lib_dir} -lei -lerl_interface"
-
+$LDFLAGS << " -L#{lib_dir} -lei -lerl_interface"
+$CPPFLAGS << ' -D_REENTRANT -g'
 if find_header('ei.h', include_dir)
   create_makefile(extension_name)
 else

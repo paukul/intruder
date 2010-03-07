@@ -1,16 +1,19 @@
-`make clean; make all CPPFLAGS=-D_REENTRANT`
-require 'intruder'
+`make clean; make all`
+require File.expand_path('../intruder', __FILE__)
 
-n = Intruder::Node.new('foo', File.read(File.expand_path('~/.erlang.cookie')))
-
-p n.status
+puts "rabbit call"
+n = Intruder::Node.new('fooz', File.read(File.expand_path('~/.erlang.cookie')))
+p n
 n.connect('rabbit@codeslave')
-# p n.status
-
 m = n.mod('rabbit')
-# p m
-m.status('yet')
+m.status('')
+
+puts
+puts "test call"
+n.connect('foo@codeslave')
+m = n.mod('test')
+m.say('')
 # m.status(['/'])
 
-puts "Pid: " + n.pid.to_s
+# puts "Pid: " + n.pid.to_s
 

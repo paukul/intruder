@@ -7,6 +7,7 @@
  * http://www.eqqon.com/index.php/Ruby_C_Extension#debug
  */
 #include "node.h"
+
 #define STOSYM(string) ID2SYM(rb_intern(string))
 
 VALUE IntruderNode = Qnil;
@@ -16,16 +17,23 @@ extern VALUE IntruderModule;
 
 /* internal methods */
 static void declare_attr_accessors();
+static void free_class_struct(void *class_struct);
 
 /* implementation */
 VALUE intruder_node_alloc(VALUE class){
-  struct intruder_node *class_struct = malloc(sizeof(struct intruder_node));
+  INTRUDER_NODE *class_struct = malloc(sizeof(INTRUDER_NODE));
   class_struct->cnode = malloc(sizeof(ei_cnode));
   class_struct->status = INTRUDER_DISCONNECTED;
 
   /* leak leak leak?? Check back with stkaes */
-  VALUE obj = Data_Wrap_Struct(class, 0, free, class_struct);
+  VALUE obj = Data_Wrap_Struct(class, 0, free_class_struct, class_struct);
   return obj;
+}
+
+static void free_class_struct(void *class_struct)
+{
+  free(((INTRUDER_NODE *)class_struct)->cnode);
+  free(class_struct);
 }
 
 VALUE intruder_node_init(VALUE self, VALUE sname, VALUE cookie){
@@ -57,8 +65,8 @@ VALUE intruder_node_pid(VALUE self){
 }
 
 VALUE intruder_node_connect(VALUE self, VALUE remote_node){
-  struct intruder_node *class_struct;
-  Data_Get_Struct(self, struct intruder_node, class_struct);
+  INTRUDER_NODE *class_struct;
+  Data_Get_Struct(self, INTRUDER_NODE, class_struct);
   int fd;
 
   if((class_struct->fd = ei_connect(class_struct->cnode, RSTRING(remote_node)->ptr)) < 0)
