@@ -1,7 +1,13 @@
 **A little WIP again**
 
-Want to try?
+What is it?
 ===========
+
+A ruby library with a C extension to interact with erlang processes.
+At the moment it's my fun project to get my feet wet with C. Stay tuned :)
+
+Want to try?
+============
 
 the test script makes an rpc call to a rabbitmq server and queries for its status.
 
