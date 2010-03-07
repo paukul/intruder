@@ -9,11 +9,11 @@ n.connect("rabbit@#{hostname}")
 m = n.mod('rabbit')
 m.status('')
 
-puts
-puts "test call"
-n.connect('foo@codeslave')
-m = n.mod('test')
-m.say('')
+# puts
+# puts "test call"
+# n.connect('foo@codeslave')
+# m = n.mod('test')
+# m.say('')
 # m.status(['/'])
 
 # puts "Pid: " + n.pid.to_s
