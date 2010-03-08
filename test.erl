@@ -2,4 +2,4 @@
 -export([say/0]).
 
 say() ->
-          {ok, congratulations}.
+          {ok, congratulations, [a, {b, c}]}.

@@ -3,7 +3,10 @@
 VALUE IntruderMod = Qnil;
 extern VALUE IntruderModule;
 
-static VALUE rb_value_from_eterm(char *eterm, int *index);
+static VALUE rb_value_from_eterm(ETERM *eterm);
+static VALUE rb_value_from_list(ETERM *list, int is_member);
+static VALUE rb_value_from_tuple(ETERM *tuple);
+static VALUE rb_value_from_atom(ETERM *atom);
 
 VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node){
   rb_iv_set(self, "@node", node);
@@ -49,56 +52,90 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
 
   /* print the result */
   index = 0;
-  printf("rpc response: ");
+  printf("rpc response:\n");
   ei_print_term(stdout, result.buff, &index);
   fflush(stdout);
   printf("\n");
-  index = 0;
-  rb_value_from_eterm(result.buff, &index);
+
+  printf("Trying to parse some stuff:\n");
+  ETERM *tuplep;
+  tuplep = erl_decode(result.buff);
+  rb_value_from_eterm(tuplep);
 
   /* free up memory */
+  erl_free_compound(tuplep);
   ei_x_free(&rpcargs);
   ei_x_free(&result);
   return Qnil;
 }
 
-static VALUE rb_value_from_eterm(char *eterm, int *index)
+static VALUE rb_value_from_eterm(ETERM *eterm)
 {
-  printf("index %d \n", *index);
-  int type, size, arity, i;
+  /*   printf("index %d \n", *index); */
+  /*   int type, size, arity, i; */
 
-  if (ei_get_type(eterm, index, &type, &size) < 0)
-    DEBUG("ERROR determining type");
-  
-  DEBUG("type %c\n", type);
-  switch (type)
-    {
-    case ERL_SMALL_TUPLE_EXT :
-      DEBUG("small tuple\n");
-      int header_index = 0;
-      ei_decode_tuple_header(eterm, &header_index, &arity);
+  /*   if (ei_get_type(eterm, index, &type, &size) < 0) */
+  /*     DEBUG("ERROR determining type"); */
+  ETERM *member, *tail;
+  int size, i = 1;
 
-      DEBUG("decoding %d tuple elements \n", arity);
-      DEBUG("{ \n");
-      for (i = 1; i <= arity; i++)
-        {
-          ++*index;
-          rb_value_from_eterm(eterm, index);
-        }
-      DEBUG(" }\n");
-      break;
-    case ERL_LARGE_TUPLE_EXT :
-      DEBUG("large tuple\n");
-      break;
-    case ERL_ATOM_EXT :
-      DEBUG("atom ");
-      char *buff;
-      ei_decode_atom(eterm, index, buff);
-      DEBUG("%s", buff);
-      break;
-    default :
-        DEBUG("undef\n");
+  if (ERL_IS_ATOM(eterm))
+    rb_value_from_atom(eterm);
+  if (ERL_IS_TUPLE(eterm))
+    rb_value_from_tuple(eterm);
+  if (ERL_IS_LIST(eterm))
+    rb_value_from_list(eterm, 0);
+
+  erl_free_compound(eterm);
+  return Qnil;
+}
+
+static VALUE rb_value_from_list(ETERM *list, int is_member){
+  ETERM *tail;
+  int i = 1;
+
+  if (!is_member) printf("[");
+
+  int size = erl_length(list);
+  for (i; i <= size; i++) {
+    rb_value_from_eterm(erl_hd(list));
+    tail = erl_tl(list);
+    if(!ERL_IS_EMPTY_LIST(tail))   {
+      if (!(i==size)) printf(", ");
+      rb_value_from_list(tail, 1);
     }
+    erl_free_compound(tail);
+  }
+
+  if (!is_member) printf("]");
+
+
+  erl_free_compound(list);
+  return Qnil;
+}
+
+static VALUE rb_value_from_tuple(ETERM *tuple){
+  int i = 1;
+  int size = erl_size(tuple);
+  ETERM *member;
+
+  printf("{");
+  for (i; i <= size; i++)
+    {
+      member = erl_element(i, tuple);
+      rb_value_from_eterm(member);
+      if (!(i==size)) printf(", ");
+      erl_free_term(member);
+    }
+
+  printf("}");
+  erl_free_compound(tuple);
+  return Qnil;
+}
+
+static VALUE rb_value_from_atom(ETERM *atom){
+  printf(ERL_ATOM_PTR(atom));
+  erl_free_term(atom);
   return Qnil;
 }
 
