@@ -2,8 +2,9 @@
 #define INTRUDER_MOD_H_
 
 #include "ruby.h"
-#include "erl_interface.h"
 #include "ei.h"
+#include "erl_interface.h"
+#include <stdio.h>
 
 #include "intruder_ext.h"
 #include "node.h"

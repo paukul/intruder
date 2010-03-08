@@ -1,8 +1,9 @@
 #include "mod.h"
-#include <stdio.h>
 
 VALUE IntruderMod = Qnil;
 extern VALUE IntruderModule;
+
+static VALUE rb_value_from_eterm(char *eterm);
 
 VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node){
   rb_iv_set(self, "@node", node);
@@ -52,10 +53,31 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   ei_print_term(stdout, result.buff, &index);
   fflush(stdout);
   printf("\n");
-  
+
+  rb_value_from_eterm(result.buff);
+
   /* free up memory */
   ei_x_free(&rpcargs);
   ei_x_free(&result);
+  return Qnil;
+}
+
+static VALUE rb_value_from_eterm(char *eterm)
+{
+  int index = 0, type, size;
+  ei_term *term;
+  printf("decode %d\n", ei_decode_ei_term(eterm, &index, term));
+
+  DEBUG("TYPE = ");
+  if (ERL_IS_ATOM(term))
+      DEBUG("atom\n");
+  else if (ERL_IS_TUPLE(term))
+      DEBUG("tuple\n");
+  else if (ERL_IS_LIST(term))
+    DEBUG("list\n");
+  else
+    DEBUG("unknown: %d\n", ERL_TYPE(eterm));
+
   return Qnil;
 }
 
