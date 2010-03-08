@@ -3,7 +3,7 @@
 VALUE IntruderMod = Qnil;
 extern VALUE IntruderModule;
 
-static VALUE rb_value_from_eterm(char *eterm);
+static VALUE rb_value_from_eterm(char *eterm, int *index);
 
 VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node){
   rb_iv_set(self, "@node", node);
@@ -53,8 +53,8 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   ei_print_term(stdout, result.buff, &index);
   fflush(stdout);
   printf("\n");
-
-  rb_value_from_eterm(result.buff);
+  index = 0;
+  rb_value_from_eterm(result.buff, &index);
 
   /* free up memory */
   ei_x_free(&rpcargs);
@@ -62,22 +62,42 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   return Qnil;
 }
 
-static VALUE rb_value_from_eterm(char *eterm)
+static VALUE rb_value_from_eterm(char *eterm, int *index)
 {
-  int index = 0, type, size;
-  ei_term *term;
-  printf("decode %d\n", ei_decode_ei_term(eterm, &index, term));
+  printf("index %d \n", *index);
+  int type, size, arity, i;
+  char *buff;
 
-  DEBUG("TYPE = ");
-  if (ERL_IS_ATOM(term))
-      DEBUG("atom\n");
-  else if (ERL_IS_TUPLE(term))
-      DEBUG("tuple\n");
-  else if (ERL_IS_LIST(term))
-    DEBUG("list\n");
-  else
-    DEBUG("unknown: %d\n", ERL_TYPE(eterm));
+  if (ei_get_type(eterm, index, &type, &size) < 0)
+    DEBUG("ERROR determining type");
 
+  switch (type)
+    {
+    case ERL_SMALL_TUPLE_EXT :
+      printf("small tuple\n");
+      int header_index = 0;
+      ei_decode_tuple_header(eterm, &header_index, &arity);
+
+      printf("decoding %d tuple elements \n", arity);
+      printf("{ ");
+      for (i = 1; i <= arity; i++)
+        {
+          ++*index;
+          rb_value_from_eterm(eterm, index);
+        }
+      printf(" }\n");
+      break;
+    case ERL_LARGE_TUPLE_EXT :
+      printf("large tuple\n");
+      break;
+    case ERL_ATOM_EXT :
+      printf("atom ");
+      ei_decode_atom(eterm, index, buff);
+      printf("%s", buff);
+      break;
+    default :
+        printf("undef");
+    }
   return Qnil;
 }
 
