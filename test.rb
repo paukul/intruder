@@ -1,4 +1,4 @@
-# `make clean; make all`
+`make clean; make all`
 require File.expand_path('../intruder', __FILE__)
 hostname = `hostname`.chomp
 

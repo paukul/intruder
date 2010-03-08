@@ -32,7 +32,7 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   INTRUDER_NODE *in_s;
   Data_Get_Struct(rb_iv_get(self, "@node"), INTRUDER_NODE, in_s);
 
-  /* prepare the erlang stuff (wtf o_O) */
+  /* prepare the erlang stuff */
   int index = 0;
   ei_x_buff rpcargs, result;
   ei_x_new(&result);
@@ -71,14 +71,10 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
 
 static VALUE rb_value_from_eterm(ETERM *eterm)
 {
-  /*   printf("index %d \n", *index); */
-  /*   int type, size, arity, i; */
-
-  /*   if (ei_get_type(eterm, index, &type, &size) < 0) */
-  /*     DEBUG("ERROR determining type"); */
   ETERM *member, *tail;
   int size, i = 1;
 
+  /* figure out the type of the eterm (more to come) */
   if (ERL_IS_ATOM(eterm))
     rb_value_from_atom(eterm);
   if (ERL_IS_TUPLE(eterm))
@@ -93,14 +89,13 @@ static VALUE rb_value_from_eterm(ETERM *eterm)
 static VALUE rb_value_from_list(ETERM *list, int is_member){
   ETERM *tail;
   int i = 1;
+  int size = erl_length(list);
 
   if (!is_member) printf("[");
-
-  int size = erl_length(list);
   for (i; i <= size; i++) {
     rb_value_from_eterm(erl_hd(list));
     tail = erl_tl(list);
-    if(!ERL_IS_EMPTY_LIST(tail))   {
+    if(!ERL_IS_EMPTY_LIST(tail)) {
       if (!(i==size)) printf(", ");
       rb_value_from_list(tail, 1);
     }
@@ -108,7 +103,6 @@ static VALUE rb_value_from_list(ETERM *list, int is_member){
   }
 
   if (!is_member) printf("]");
-
 
   erl_free_compound(list);
   return Qnil;
