@@ -66,37 +66,38 @@ static VALUE rb_value_from_eterm(char *eterm, int *index)
 {
   printf("index %d \n", *index);
   int type, size, arity, i;
-  char *buff;
 
   if (ei_get_type(eterm, index, &type, &size) < 0)
     DEBUG("ERROR determining type");
-
+  
+  DEBUG("type %c\n", type);
   switch (type)
     {
     case ERL_SMALL_TUPLE_EXT :
-      printf("small tuple\n");
+      DEBUG("small tuple\n");
       int header_index = 0;
       ei_decode_tuple_header(eterm, &header_index, &arity);
 
-      printf("decoding %d tuple elements \n", arity);
-      printf("{ ");
+      DEBUG("decoding %d tuple elements \n", arity);
+      DEBUG("{ \n");
       for (i = 1; i <= arity; i++)
         {
           ++*index;
           rb_value_from_eterm(eterm, index);
         }
-      printf(" }\n");
+      DEBUG(" }\n");
       break;
     case ERL_LARGE_TUPLE_EXT :
-      printf("large tuple\n");
+      DEBUG("large tuple\n");
       break;
     case ERL_ATOM_EXT :
-      printf("atom ");
+      DEBUG("atom ");
+      char *buff;
       ei_decode_atom(eterm, index, buff);
-      printf("%s", buff);
+      DEBUG("%s", buff);
       break;
     default :
-        printf("undef");
+        DEBUG("undef\n");
     }
   return Qnil;
 }
