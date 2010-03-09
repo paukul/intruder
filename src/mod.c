@@ -7,6 +7,7 @@ static VALUE rb_value_from_eterm(ETERM *eterm);
 static VALUE rb_value_from_list(ETERM *list, int is_member);
 static VALUE rb_value_from_tuple(ETERM *tuple);
 static VALUE rb_value_from_atom(ETERM *atom);
+static VALUE rb_value_from_binary(ETERM *binary);
 
 VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node){
   rb_iv_set(self, "@node", node);
@@ -81,6 +82,8 @@ static VALUE rb_value_from_eterm(ETERM *eterm)
     rb_value_from_tuple(eterm);
   if (ERL_IS_LIST(eterm))
     rb_value_from_list(eterm, 0);
+  if (ERL_IS_BINARY(eterm))
+    rb_value_from_binary(eterm);
 
   erl_free_compound(eterm);
   return Qnil;
@@ -88,21 +91,29 @@ static VALUE rb_value_from_eterm(ETERM *eterm)
 
 static VALUE rb_value_from_list(ETERM *list, int is_member){
   ETERM *tail;
+  char *buff;
   int i = 1;
   int size = erl_length(list);
 
-  if (!is_member) printf("[");
-  for (i; i <= size; i++) {
-    rb_value_from_eterm(erl_hd(list));
-    tail = erl_tl(list);
-    if(!ERL_IS_EMPTY_LIST(tail)) {
-      if (!(i==size)) printf(", ");
-      rb_value_from_list(tail, 1);
-    }
-    erl_free_compound(tail);
-  }
+  if ((buff = erl_iolist_to_string(list)) == NULL) {
 
-  if (!is_member) printf("]");
+    if (!is_member) printf("[");
+    for (i; i <= size; i++) {
+      /* decode the first element of the list... */
+      rb_value_from_eterm(erl_hd(list));
+      tail = erl_tl(list);
+      if(!ERL_IS_EMPTY_LIST(tail)) {
+        if (!(i==size)) printf(", ");
+        rb_value_from_list(tail, 1);
+      }
+      erl_free_compound(tail);
+    }
+    if (!is_member) printf("]");
+
+  } else {
+    printf("\"%s\"", buff);
+    erl_free(buff);
+  }
 
   erl_free_compound(list);
   return Qnil;
@@ -128,8 +139,14 @@ static VALUE rb_value_from_tuple(ETERM *tuple){
 }
 
 static VALUE rb_value_from_atom(ETERM *atom){
-  printf(ERL_ATOM_PTR(atom));
+  printf("%s", ERL_ATOM_PTR(atom));
   erl_free_term(atom);
+  return Qnil;
+}
+
+static VALUE rb_value_from_binary(ETERM *binary){
+  printf("%s", ERL_BIN_PTR(binary));
+  erl_free_term(binary);
   return Qnil;
 }
 
