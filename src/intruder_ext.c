@@ -1,6 +1,7 @@
 #include "intruder_ext.h"
 #include "node.h"
 #include "mod.h"
+#include "term.h"
 
 /* common imports */
 #include <stdlib.h>
@@ -13,6 +14,7 @@ extern VALUE IntruderException;
 void Init_intruder_ext(){
   erl_init(NULL, 0);
   IntruderModule = rb_define_module("Intruder");
+  Init_intruder_term();
   Init_intruder_node();
   Init_intruder_mod();
 }
@@ -33,6 +35,6 @@ void raise_rException_for_erl_errno(){
         break;
       case EIO :
         rb_raise(IntruderException, "IO error");
-        break; 
+        break;
       }
 }

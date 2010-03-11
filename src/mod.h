@@ -8,7 +8,7 @@
 
 #include "intruder_ext.h"
 #include "node.h"
-
+#include "term.h"
 
 typedef struct intruder_mod
 {

@@ -2,6 +2,7 @@
 
 VALUE IntruderMod = Qnil;
 extern VALUE IntruderModule;
+extern VALUE IntruderTerm;
 
 static VALUE rb_value_from_eterm(ETERM *eterm);
 static VALUE rb_value_from_list(ETERM *list, int is_member);
@@ -25,6 +26,7 @@ VALUE intruder_mod_alloc(VALUE class){
 VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   VALUE fun = rb_ary_shift(args);
   VALUE args_str = rb_funcall(args, rb_intern("inspect"), 0);
+  VALUE ruby_object;
 
   /* name of the module to call is set in a ruby ivar */
   char *mod = RSTRING(rb_iv_get(self, "@modname"))->ptr;
@@ -51,42 +53,37 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   if(ret < 0)
     raise_rException_for_erl_errno();
 
-  /* print the result */
-  index = 0;
-  printf("rpc response:\n");
-  ei_print_term(stdout, result.buff, &index);
-  fflush(stdout);
-  printf("\n");
-
-  printf("Trying to parse some stuff:\n");
   ETERM *tuplep;
   tuplep = erl_decode(result.buff);
-  rb_value_from_eterm(tuplep);
+
+  ruby_object = rb_value_from_eterm(tuplep);
 
   /* free up memory */
-  erl_free_compound(tuplep);
   ei_x_free(&rpcargs);
   ei_x_free(&result);
-  return Qnil;
+  return ruby_object;
 }
 
 static VALUE rb_value_from_eterm(ETERM *eterm)
 {
-  ETERM *member, *tail;
-  int size, i = 1;
+  INTRUDER_TERM *iterm = new_intruder_term();
+  iterm->eterm = eterm;
+  VALUE rubyObject = Data_Wrap_Struct(IntruderTerm, 0, free_intruder_term, iterm);
+  /* for now just return the term object. later return the right one ;) */
+  return rubyObject;
 
-  /* figure out the type of the eterm (more to come) */
-  if (ERL_IS_ATOM(eterm))
-    rb_value_from_atom(eterm);
-  if (ERL_IS_TUPLE(eterm))
-    rb_value_from_tuple(eterm);
-  if (ERL_IS_LIST(eterm))
-    rb_value_from_list(eterm, 0);
-  if (ERL_IS_BINARY(eterm))
-    rb_value_from_binary(eterm);
+/*   figure out the type of the eterm (more to come) */
+/*   if (ERL_IS_ATOM(eterm)) */
+/*     rb_value_from_atom(eterm); */
+/*   if (ERL_IS_TUPLE(eterm)) */
+/*     rb_value_from_tuple(eterm); */
+/*   if (ERL_IS_LIST(eterm)) */
+/*     rb_value_from_list(eterm, 0); */
+/*   if (ERL_IS_BINARY(eterm)) */
+/*     rb_value_from_binary(eterm); */
 
-  erl_free_compound(eterm);
-  return Qnil;
+/*   erl_free_compound(eterm); */
+/*   return Qnil; */
 }
 
 static VALUE rb_value_from_list(ETERM *list, int is_member){
@@ -106,7 +103,6 @@ static VALUE rb_value_from_list(ETERM *list, int is_member){
         if (!(i==size)) printf(", ");
         rb_value_from_list(tail, 1);
       }
-      erl_free_compound(tail);
     }
     if (!is_member) printf("]");
 

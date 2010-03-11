@@ -7,7 +7,7 @@ n = Intruder::Node.new('fooz', File.read(File.expand_path('~/.erlang.cookie')))
 puts "rabbit call"
 n.connect("rabbit@#{hostname}")
 m = n.mod('rabbit')
-m.status('')
+puts m.status('').to_s
 
 # puts
 # puts "test call"
