@@ -8,7 +8,14 @@ puts "rabbit call"
 n.connect("rabbit@#{hostname}")
 m = n.mod('rabbit')
 ret = m.status('')
+puts ret.to_s
 puts ret.class
+
+puts "-----------"
+ret.each do |m|
+  puts m.to_s + " class: " + m.class.to_s
+end
+
 
 
 # puts

@@ -4,12 +4,6 @@ VALUE IntruderMod = Qnil;
 extern VALUE IntruderModule;
 extern VALUE IntruderTerm;
 
-static VALUE rb_value_from_eterm(ETERM *eterm);
-static VALUE rb_value_from_list(ETERM *list, int is_member);
-static VALUE rb_value_from_tuple(ETERM *tuple);
-static VALUE rb_value_from_atom(ETERM *atom);
-static VALUE rb_value_from_binary(ETERM *binary);
-
 VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node){
   rb_iv_set(self, "@node", node);
   rb_iv_set(self, "@modname", modname);
@@ -62,88 +56,6 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   ei_x_free(&rpcargs);
   ei_x_free(&result);
   return ruby_object;
-}
-
-static VALUE rb_value_from_eterm(ETERM *eterm)
-{
-  INTRUDER_TERM *iterm = new_intruder_term();
-  iterm->eterm = eterm;
-  VALUE rubyObject = Data_Wrap_Struct(IntruderTerm, 0, free_intruder_term, iterm);
-  /* for now just return the term object. later return the right one ;) */
-  return rubyObject;
-
-/*   figure out the type of the eterm (more to come) */
-/*   if (ERL_IS_ATOM(eterm)) */
-/*     rb_value_from_atom(eterm); */
-/*   if (ERL_IS_TUPLE(eterm)) */
-/*     rb_value_from_tuple(eterm); */
-/*   if (ERL_IS_LIST(eterm)) */
-/*     rb_value_from_list(eterm, 0); */
-/*   if (ERL_IS_BINARY(eterm)) */
-/*     rb_value_from_binary(eterm); */
-
-/*   erl_free_compound(eterm); */
-/*   return Qnil; */
-}
-
-static VALUE rb_value_from_list(ETERM *list, int is_member){
-  ETERM *tail;
-  char *buff;
-  int i = 1;
-  int size = erl_length(list);
-
-  if ((buff = erl_iolist_to_string(list)) == NULL) {
-
-    if (!is_member) printf("[");
-    for (i; i <= size; i++) {
-      /* decode the first element of the list... */
-      rb_value_from_eterm(erl_hd(list));
-      tail = erl_tl(list);
-      if(!ERL_IS_EMPTY_LIST(tail)) {
-        if (!(i==size)) printf(", ");
-        rb_value_from_list(tail, 1);
-      }
-    }
-    if (!is_member) printf("]");
-
-  } else {
-    printf("\"%s\"", buff);
-    erl_free(buff);
-  }
-
-  erl_free_compound(list);
-  return Qnil;
-}
-
-static VALUE rb_value_from_tuple(ETERM *tuple){
-  int i = 1;
-  int size = erl_size(tuple);
-  ETERM *member;
-
-  printf("{");
-  for (i; i <= size; i++)
-    {
-      member = erl_element(i, tuple);
-      rb_value_from_eterm(member);
-      if (!(i==size)) printf(", ");
-      erl_free_term(member);
-    }
-
-  printf("}");
-  erl_free_compound(tuple);
-  return Qnil;
-}
-
-static VALUE rb_value_from_atom(ETERM *atom){
-  printf("%s", ERL_ATOM_PTR(atom));
-  erl_free_term(atom);
-  return Qnil;
-}
-
-static VALUE rb_value_from_binary(ETERM *binary){
-  printf("%s", ERL_BIN_PTR(binary));
-  erl_free_term(binary);
-  return Qnil;
 }
 
 void Init_intruder_mod(){

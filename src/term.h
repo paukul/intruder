@@ -6,6 +6,7 @@
 #include "erl_interface.h"
 
 #include "intruder_ext.h"
+#include "list.h"
 #include "erlix_helper.h"
 
 #define INTRUDER_TYPE_ATOM       0
@@ -22,6 +23,7 @@
 #define INTRUDER_TYPE_STRING    11
 
 extern VALUE IntruderModule;
+extern VALUE IntruderList;
 
 typedef struct intruder_term
 {
@@ -36,5 +38,12 @@ VALUE intruder_term_to_s(VALUE self);
 
 void free_intruder_term(void *term);
 INTRUDER_TERM *new_intruder_term();
+
+/* C Methods */
+VALUE rb_value_from_eterm(ETERM *eterm);
+VALUE rb_value_from_list(INTRUDER_TERM *iterm);
+VALUE rb_value_from_tuple(INTRUDER_TERM *iterm);
+VALUE rb_value_from_atom(INTRUDER_TERM *iterm);
+VALUE rb_value_from_binary(INTRUDER_TERM *iterm);
 
 #endif /* ifndef INTRUDER_TERM_H */

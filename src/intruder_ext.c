@@ -2,6 +2,7 @@
 #include "node.h"
 #include "mod.h"
 #include "term.h"
+#include "list.h"
 
 /* common imports */
 #include <stdlib.h>
@@ -15,6 +16,7 @@ void Init_intruder_ext(){
   erl_init(NULL, 0);
   IntruderModule = rb_define_module("Intruder");
   Init_intruder_term();
+  Init_intruder_list();
   Init_intruder_node();
   Init_intruder_mod();
 }
