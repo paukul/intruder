@@ -29,4 +29,6 @@ VALUE intruder_list_each(VALUE self)
       rMember = rb_value_from_eterm(member);
       rb_yield(rMember);
     }
+
+  erl_free_compound(list);
 }
