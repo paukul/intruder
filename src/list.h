@@ -10,7 +10,10 @@ extern VALUE IntruderTerm;
 
 void Init_intruder_list();
 
+
 /* Enumerable */
 VALUE intruder_list_each(VALUE self);
+
+VALUE intruder_list_member_at(VALUE self, VALUE position);
 
 #endif /* ifndef INTRUDER_LIST_H */

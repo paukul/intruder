@@ -12,9 +12,11 @@ puts ret.to_s
 puts ret.class
 
 puts "-----------"
-ret.each do |m|
-  puts m.to_s + " class: " + m.class.to_s
+ret.each do |member|
+  puts member.to_s + " class: " + member.class.to_s
 end
+puts "-----------"
+puts ret[2].to_s
 
 
 
