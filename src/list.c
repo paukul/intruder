@@ -8,8 +8,19 @@ void Init_intruder_list()
 
   rb_define_method(IntruderList, "each", intruder_list_each, 0);
   rb_define_method(IntruderList, "[]", intruder_list_member_at, 1);
+  rb_define_method(IntruderList, "length", intruder_list_length, 0);
+  rb_define_alias(IntruderList, "size", "length");
 }
 
+/* lenght and size */
+VALUE intruder_list_length(VALUE self){
+  INTRUDER_TERM *term;
+  Data_Get_Struct(self, INTRUDER_TERM, term);
+
+  return INT2FIX(erl_length(term->eterm));
+}
+
+/* [] */
 VALUE intruder_list_member_at(VALUE self, VALUE position)
 {
   INTRUDER_TERM *term;
