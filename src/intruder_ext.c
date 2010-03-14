@@ -3,6 +3,7 @@
 #include "mod.h"
 #include "term.h"
 #include "list.h"
+#include "tuple.h"
 
 /* common imports */
 #include <stdlib.h>
@@ -17,6 +18,7 @@ void Init_intruder_ext(){
   IntruderModule = rb_define_module("Intruder");
   Init_intruder_term();
   Init_intruder_list();
+  Init_intruder_tuple();
   Init_intruder_node();
   Init_intruder_mod();
 }

@@ -24,6 +24,7 @@
 
 extern VALUE IntruderModule;
 extern VALUE IntruderList;
+extern VALUE IntruderTuple;
 
 typedef struct intruder_term
 {

@@ -31,17 +31,23 @@ VALUE rb_value_from_eterm(ETERM *eterm)
   INTRUDER_TERM *iterm = new_intruder_term();
   iterm->eterm = eterm;
   if (ERL_IS_LIST(eterm))
-    rubyObject = rb_value_from_list(iterm);
+    {
+      rubyObject = rb_value_from_list(iterm);
+    }
+  else if (ERL_IS_TUPLE(eterm))
+    {
+      rubyObject = rb_value_from_tuple(iterm);
+    }
   else
-    rubyObject = Data_Wrap_Struct(IntruderTerm, 0, free_intruder_term, iterm);
+    {
+      rubyObject = Data_Wrap_Struct(IntruderTerm, 0, free_intruder_term, iterm);
+    }
   /* for now just return the term object. later return the right one ;) */
   return rubyObject;
 
 /*   figure out the type of the eterm (more to come) */
 /*   if (ERL_IS_ATOM(eterm)) */
 /*     rb_value_from_atom(eterm); */
-/*   if (ERL_IS_TUPLE(eterm)) */
-/*     rb_value_from_tuple(eterm); */
 /*   if (ERL_IS_BINARY(eterm)) */
 /*     rb_value_from_binary(eterm); */
 /*   erl_free_compound(eterm); */
@@ -56,7 +62,10 @@ VALUE rb_value_from_list(INTRUDER_TERM *iterm){
 }
 
 VALUE rb_value_from_tuple(INTRUDER_TERM *iterm){
-  return Qnil;
+  VALUE rValue;
+  iterm->type = INTRUDER_TYPE_TUPLE;
+  rValue = Data_Wrap_Struct(IntruderTuple, 0, free_intruder_term, iterm);
+  return rValue;
 }
 
 VALUE rb_value_from_atom(INTRUDER_TERM *iterm){
