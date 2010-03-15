@@ -1,4 +1,4 @@
-require 'intruder_ext'
+require File.expand_path('../../intruder_ext', __FILE__)
 
 module Intruder
   

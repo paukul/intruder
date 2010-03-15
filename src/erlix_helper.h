@@ -5,6 +5,8 @@
 #include "erl_interface.h"
 #include "ei.h"
 
+#include <ctype.h>
+
 void fill_string(VALUE *str, ETERM *ep);
 
 #endif

@@ -42,7 +42,7 @@ VALUE intruder_node_init(VALUE self, VALUE sname, VALUE cookie){
   rb_iv_set(self, "@cookie", cookie);
 
   /* initialize the node */
-  if(ei_connect_init(class_struct->cnode, RSTRING(sname)->ptr, RSTRING(cookie)->ptr, node_count++) < 0){
+  if(ei_connect_init(class_struct->cnode, RSTRING_PTR(sname), RSTRING_PTR(cookie), node_count++) < 0){
     free(class_struct->cnode);
     rb_raise(rb_eRuntimeError, "Error initializing the node");
   }
@@ -69,7 +69,7 @@ VALUE intruder_node_connect(VALUE self, VALUE remote_node){
   Data_Get_Struct(self, INTRUDER_NODE, class_struct);
   int fd;
 
-  if((class_struct->fd = ei_connect(class_struct->cnode, RSTRING(remote_node)->ptr)) < 0)
+  if((class_struct->fd = ei_connect(class_struct->cnode, RSTRING_PTR(remote_node))) < 0)
     raise_rException_for_erl_errno();
 
   class_struct->status = INTRUDER_CONNECTED;

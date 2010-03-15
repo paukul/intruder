@@ -45,7 +45,7 @@ VALUE intruder_list_member_at(VALUE self, VALUE position)
 VALUE intruder_list_each(VALUE self)
 {
   INTRUDER_TERM *term;
-  ETERM *member, *list, *old_list;
+  ETERM *member, *list;
   VALUE rMember;
   int i;
 
@@ -62,4 +62,5 @@ VALUE intruder_list_each(VALUE self)
     }
 
   erl_free_compound(list);
+  return Qnil;
 }
