@@ -1,9 +1,4 @@
 #include "intruder_ext.h"
-#include "node.h"
-#include "mod.h"
-#include "term.h"
-#include "list.h"
-#include "tuple.h"
 
 /* common imports */
 #include <stdlib.h>
