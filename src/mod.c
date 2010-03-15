@@ -23,7 +23,7 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   VALUE ruby_object;
 
   /* name of the module to call is set in a ruby ivar */
-  char *mod = RSTRING(rb_iv_get(self, "@modname"))->ptr;
+  char *mod = RSTRING_PTR(rb_iv_get(self, "@modname"));
   int ret;
   /* get the data struct of the Intruder::Node in the Intruder::Mod */
   INTRUDER_NODE *in_s;
@@ -42,8 +42,8 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   fflush(stdout);
 
   /* RPC call */
-  DEBUG("\nrpc call to %s:%s\n", mod, RSTRING(fun)->ptr);
-  ret = ei_rpc(in_s->cnode, in_s->fd, mod, RSTRING(fun)->ptr, rpcargs.buff, rpcargs.index, &result);
+  DEBUG("\nrpc call to %s:%s\n", mod, RSTRING_PTR(fun));
+  ret = ei_rpc(in_s->cnode, in_s->fd, mod, RSTRING_PTR(fun), rpcargs.buff, rpcargs.index, &result);
   if(ret < 0)
     raise_rException_for_erl_errno();
 
