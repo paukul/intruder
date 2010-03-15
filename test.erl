@@ -1,5 +1,5 @@
 -module(test).
--export([say/0]).
+-export([say/1]).
 
-say() ->
-          {ok, congratulations, [a, {b, c}]}.
+say(Any) ->
+          {ok, congratulations, [a, {b, c}], Any}.

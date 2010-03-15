@@ -19,7 +19,7 @@ VALUE intruder_mod_alloc(VALUE class){
 
 VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   VALUE fun = rb_ary_shift(args);
-  VALUE args_str = rb_funcall(args, rb_intern("inspect"), 0);
+  VALUE params = rb_ary_shift(args);
   VALUE ruby_object;
 
   /* name of the module to call is set in a ruby ivar */
@@ -36,10 +36,11 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   ei_x_new(&rpcargs);
 
   /* encoding the params */
-  ei_x_format_wo_ver(&rpcargs, "[]");
+/*   ei_x_format_wo_ver(&rpcargs, "[]"); */
+  ei_x_format_wo_ver(&rpcargs, RSTRING(params)->ptr);
   printf("sending params: ");
-  ei_print_term(stdout, rpcargs.buff, &index);
-  fflush(stdout);
+/*   ei_print_term(stdout, rpcargs.buff, &index); */
+/*   fflush(stdout); */
 
   /* RPC call */
   DEBUG("\nrpc call to %s:%s\n", mod, RSTRING(fun)->ptr);
