@@ -6,7 +6,7 @@
 #include "mod.h"
 #include "term.h"
 #include "list.h"
-
+#include "atom.h"
 
 #ifndef RSTRING_PTR
 # define RSTRING_PTR(s) (RSTRING(s)->ptr)

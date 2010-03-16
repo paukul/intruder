@@ -25,6 +25,7 @@
 extern VALUE IntruderModule;
 extern VALUE IntruderList;
 extern VALUE IntruderTuple;
+extern VALUE IntruderAtom;
 
 typedef struct intruder_term
 {
@@ -36,6 +37,7 @@ void Init_intruder_term();
 
 /* instance methods */
 VALUE intruder_term_to_s(VALUE self);
+VALUE intruder_term_convert(VALUE self, VALUE ruby_object);
 
 void free_intruder_term(void *term);
 INTRUDER_TERM *new_intruder_term();

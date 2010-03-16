@@ -38,6 +38,10 @@ VALUE rb_value_from_eterm(ETERM *eterm)
     {
       rubyObject = rb_value_from_tuple(iterm);
     }
+  else if (ERL_IS_ATOM(eterm))
+    {
+      rubyObject = rb_value_from_atom(iterm);
+    }
   else
     {
       rubyObject = Data_Wrap_Struct(IntruderTerm, 0, free_intruder_term, iterm);
@@ -46,8 +50,6 @@ VALUE rb_value_from_eterm(ETERM *eterm)
   return rubyObject;
 
 /*   figure out the type of the eterm (more to come) */
-/*   if (ERL_IS_ATOM(eterm)) */
-/*     rb_value_from_atom(eterm); */
 /*   if (ERL_IS_BINARY(eterm)) */
 /*     rb_value_from_binary(eterm); */
 /*   erl_free_compound(eterm); */
@@ -69,17 +71,24 @@ VALUE rb_value_from_tuple(INTRUDER_TERM *iterm){
 }
 
 VALUE rb_value_from_atom(INTRUDER_TERM *iterm){
-  return Qnil;
+  VALUE rValue;
+  iterm->type = INTRUDER_TYPE_ATOM;
+  rValue = Data_Wrap_Struct(IntruderAtom, 0, free_intruder_term, iterm);
+  return rValue;
 }
 
 VALUE rb_value_from_binary(INTRUDER_TERM *iterm){
   return Qnil;
 }
 
+VALUE intruder_term_convert(VALUE self, VALUE ruby_object){
+  return Qnil;
+}
 
 void Init_intruder_term(){
   IntruderTerm = rb_define_class_under(IntruderModule, "Term", rb_cObject);
 
   /* instance methods */
   rb_define_method(IntruderTerm, "to_s", intruder_term_to_s, 0);
+  rb_define_singleton_method(IntruderTerm, "convert", intruder_term_convert, 1);
 }
