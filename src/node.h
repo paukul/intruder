@@ -28,6 +28,9 @@ typedef struct intruder_node
   int status;
 } INTRUDER_NODE;
 
+extern VALUE IntruderModule;
+extern VALUE IntruderException;
+
 /* prototypes */
 void Init_intruder_node();
 

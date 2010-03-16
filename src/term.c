@@ -49,11 +49,11 @@ VALUE rb_value_from_eterm(ETERM *eterm)
   /* for now just return the term object. later return the right one ;) */
   return rubyObject;
 
-/*   figure out the type of the eterm (more to come) */
-/*   if (ERL_IS_BINARY(eterm)) */
-/*     rb_value_from_binary(eterm); */
-/*   erl_free_compound(eterm); */
-/*   return Qnil; */
+  /*   figure out the type of the eterm (more to come) */
+  /*   if (ERL_IS_BINARY(eterm)) */
+  /*     rb_value_from_binary(eterm); */
+  /*   erl_free_compound(eterm); */
+  /*   return Qnil; */
 }
 
 VALUE rb_value_from_list(INTRUDER_TERM *iterm){
@@ -82,7 +82,25 @@ VALUE rb_value_from_binary(INTRUDER_TERM *iterm){
 }
 
 VALUE intruder_term_convert(VALUE self, VALUE ruby_object){
-  return Qnil;
+  VALUE ret = Qnil;
+
+  ETERM *eterm;
+  switch(TYPE(ruby_object))
+    {
+    case T_SYMBOL :
+      eterm = erl_format("~a", rb_id2name(rb_to_id(ruby_object)));
+      break;
+    case T_ARRAY :
+      if (RARRAY(ruby_object)->len == 0) /* empty array -> empty list */
+        {
+          eterm = erl_format("[]");
+        }
+      break;
+    default :
+      rb_raise(IntruderException, "unable to convert that ruby object to an erlang term");
+    }
+  ret = rb_value_from_eterm(eterm);
+  return ret;
 }
 
 void Init_intruder_term(){

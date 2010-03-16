@@ -11,9 +11,8 @@
 #define STOSYM(string) ID2SYM(rb_intern(string))
 
 VALUE IntruderNode = Qnil;
-VALUE IntruderException = Qnil;
+VALUE IntruderNodeException = Qnil;
 int node_count = 0;
-extern VALUE IntruderModule;
 
 /* internal methods */
 static void declare_attr_accessors();
@@ -90,7 +89,7 @@ void Init_intruder_node(){
   rb_define_method(IntruderNode, "status", intruder_node_status, 0);
 
   /* exceptions */
-  IntruderException = rb_define_class_under(IntruderModule, "NodeException", rb_eRuntimeError);
+  IntruderNodeException = rb_define_class_under(IntruderModule, "NodeError", IntruderException);
 }
 
 static void declare_attr_accessors(){

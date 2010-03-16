@@ -26,6 +26,7 @@ extern VALUE IntruderModule;
 extern VALUE IntruderList;
 extern VALUE IntruderTuple;
 extern VALUE IntruderAtom;
+extern VALUE IntruderException;
 
 typedef struct intruder_term
 {

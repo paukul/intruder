@@ -6,11 +6,14 @@
 
 /* TODO in den header*/
 VALUE IntruderModule = Qnil;
-extern VALUE IntruderException;
+VALUE IntruderException = Qnil;
+extern VALUE IntruderNodeException;
 
 void Init_intruder_ext(){
   erl_init(NULL, 0);
   IntruderModule = rb_define_module("Intruder");
+  IntruderException = rb_define_class_under(IntruderModule, "Error", rb_eRuntimeError);
+
   Init_intruder_term();
   Init_intruder_list();
   Init_intruder_tuple();
@@ -28,13 +31,13 @@ void raise_rException_for_erl_errno(){
     switch( erl_errno )
       {
       case EHOSTUNREACH :
-        rb_raise(IntruderException, "Host unreachable");
+        rb_raise(IntruderNodeException, "Host unreachable");
         break;
       case ENOMEM :
-        rb_raise(IntruderException, "Memory Error");
+        rb_raise(IntruderNodeException, "Memory Error");
         break;
       case EIO :
-        rb_raise(IntruderException, "IO error");
+        rb_raise(IntruderNodeException, "IO error");
         break;
       }
 }
