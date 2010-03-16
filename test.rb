@@ -1,7 +1,6 @@
 `make clean; make all`
 require File.expand_path('../lib/intruder', __FILE__)
-#hostname = `hostname`.chomp
-hostname = "codeslave"
+hostname = `hostname`.chomp
 
 n = Intruder::Node.new('fooz', File.read(File.expand_path('~/.erlang.cookie')))
 
@@ -13,7 +12,7 @@ puts ret.to_s
 puts ret.class
 
 puts "\n--- length of the response ---\n"
-puts "Members: #{ret.length} / #{ret.size}"
+puts "Members: #{ret.size}"
 puts "\n--- print every member with its class ---\n"
 ret.each do |member|
   puts member.to_s + " class: " + member.class.to_s
@@ -24,14 +23,4 @@ puts "\n--- access the first element of the second member ---\n"
 puts ret[1][0].to_s
 puts "\n--- which is a ---\n"
 puts ret[1][0].class
-
-
-# puts
-# puts "test call"
-# n.connect('foo@codeslave')
-# m = n.mod('test')
-# m.say('')
-
-
-# puts "Pid: " + n.pid.to_s
 

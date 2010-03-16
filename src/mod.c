@@ -29,19 +29,15 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   char *mod = RSTRING_PTR(rb_iv_get(self, "@modname"));
   int ret;
   /* get the data struct of the Intruder::Node in the Intruder::Mod */
-  INTRUDER_NODE *in_s;
-  Data_Get_Struct(rb_iv_get(self, "@node"), INTRUDER_NODE, in_s);
+  INTRUDER_NODE *inode;
+  Data_Get_Struct(rb_iv_get(self, "@node"), INTRUDER_NODE, inode);
 
   /* prepare the erlang stuff */
   int index = 0;
   ei_x_buff rpcargs, result;
   ei_x_new(&result);
   ei_x_new(&rpcargs);
-
   ei_x_encode_term(&rpcargs, iterm->eterm);
-  /* encoding the params */
-  /*   ei_x_format_wo_ver(&rpcargs, "[~s]", "/"); */
-/*   ei_x_format_wo_ver(&rpcargs, "[]"); */
 
   printf("sending params: ");
   ei_print_term(stdout, rpcargs.buff, &index);
@@ -49,7 +45,7 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
 
   /* RPC call */
   DEBUG("\nrpc call to %s:%s\n", mod, RSTRING_PTR(fun));
-  ret = ei_rpc(in_s->cnode, in_s->fd, mod, RSTRING_PTR(fun), rpcargs.buff, rpcargs.index, &result);
+  ret = ei_rpc(inode->cnode, inode->fd, mod, RSTRING_PTR(fun), rpcargs.buff, rpcargs.index, &result);
 
   if (ret < 0) raise_rException_for_erl_errno();
 
