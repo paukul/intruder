@@ -7,4 +7,4 @@ n.connect('snaps@codeslave')
 
 test = n.mod('test')
 #p test.say('[a]')
-p test.say('[<<"/">>]')
+p test.say(Intruder::Term.convert(:a))

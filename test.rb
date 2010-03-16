@@ -8,7 +8,7 @@ n = Intruder::Node.new('fooz', File.read(File.expand_path('~/.erlang.cookie')))
 puts "--- rabbit call ---\n"
 n.connect("rabbit@#{hostname}")
 m = n.mod('rabbit')
-ret = m.status('[]')
+ret = m.status(Intruder::Term.convert([]))
 puts ret.to_s
 puts ret.class
 

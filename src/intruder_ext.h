@@ -9,8 +9,9 @@
 #include "atom.h"
 
 #ifndef RSTRING_PTR
-# define RSTRING_PTR(s) (RSTRING(s)->ptr)
-# define RSTRING_LEN(s) (RSTRING(s)->len)
+#define RSTRING_PTR(s) (RSTRING(s)->ptr)
+#define RSTRING_LEN(s) (RSTRING(s)->len)
+#define RARRAY_LEN(a) (RARRAY(a)->len)
 #endif
 
 extern void raise_rException_for_erl_errno();

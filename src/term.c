@@ -91,7 +91,7 @@ VALUE intruder_term_convert(VALUE self, VALUE ruby_object){
       eterm = erl_format("~a", rb_id2name(rb_to_id(ruby_object)));
       break;
     case T_ARRAY :
-      if (RARRAY(ruby_object)->len == 0) /* empty array -> empty list */
+      if (RARRAY_LEN(ruby_object)== 0) /* empty array -> empty list */
         {
           eterm = erl_format("[]");
         }

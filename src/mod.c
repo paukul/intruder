@@ -20,10 +20,10 @@ VALUE intruder_mod_alloc(VALUE class){
 VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   VALUE fun = rb_ary_shift(args);
   VALUE params = rb_ary_shift(args);
-  INTRUDER_TERM *eterm;
-  /* Data_Get_Struct(args, INTRUDER_TERM, eterm); */
 
-  VALUE ruby_object;
+  /* get the intruder term struct from the args array */
+  INTRUDER_TERM *iterm;
+  Data_Get_Struct(params, INTRUDER_TERM, iterm);
 
   /* name of the module to call is set in a ruby ivar */
   char *mod = RSTRING_PTR(rb_iv_get(self, "@modname"));
@@ -38,9 +38,11 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   ei_x_new(&result);
   ei_x_new(&rpcargs);
 
+  ei_x_encode_term(&rpcargs, iterm->eterm);
   /* encoding the params */
-/*   ei_x_format_wo_ver(&rpcargs, "[~s]", "/"); */
-  ei_x_format_wo_ver(&rpcargs, "[]");
+  /*   ei_x_format_wo_ver(&rpcargs, "[~s]", "/"); */
+/*   ei_x_format_wo_ver(&rpcargs, "[]"); */
+
   printf("sending params: ");
   ei_print_term(stdout, rpcargs.buff, &index);
   fflush(stdout);
@@ -48,18 +50,14 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   /* RPC call */
   DEBUG("\nrpc call to %s:%s\n", mod, RSTRING_PTR(fun));
   ret = ei_rpc(in_s->cnode, in_s->fd, mod, RSTRING_PTR(fun), rpcargs.buff, rpcargs.index, &result);
-  if(ret < 0)
-    raise_rException_for_erl_errno();
+
+  if (ret < 0) raise_rException_for_erl_errno();
 
   ETERM *tuplep;
   tuplep = erl_decode(result.buff);
-
-  ruby_object = rb_value_from_eterm(tuplep);
-
-  /* free up memory */
   ei_x_free(&rpcargs);
   ei_x_free(&result);
-  return ruby_object;
+  return rb_value_from_eterm(tuplep);
 }
 
 void Init_intruder_mod(){
