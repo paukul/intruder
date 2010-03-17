@@ -1,4 +1,5 @@
 *.o
+*.so
 *.bundle
 Makefile
 *.log

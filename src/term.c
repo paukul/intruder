@@ -81,7 +81,7 @@ VALUE rb_value_from_binary(INTRUDER_TERM *iterm){
   return Qnil;
 }
 
-VALUE intruder_term_convert(VALUE self, VALUE ruby_object){
+VALUE intruder_term_encode(VALUE self, VALUE ruby_object){
   VALUE ret = Qnil;
 
   ETERM *eterm;
@@ -108,5 +108,5 @@ void Init_intruder_term(){
 
   /* instance methods */
   rb_define_method(IntruderTerm, "to_s", intruder_term_to_s, 0);
-  rb_define_singleton_method(IntruderTerm, "convert", intruder_term_convert, 1);
+  rb_define_singleton_method(IntruderTerm, "encode", intruder_term_encode, 1);
 }
