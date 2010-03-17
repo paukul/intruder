@@ -21,17 +21,20 @@ VALUE intruder_list_length(VALUE self){
 }
 
 /* [] */
-VALUE intruder_list_member_at(VALUE self, VALUE position)
+VALUE intruder_list_member_at(VALUE self, VALUE pos)
 {
+  int position = NUM2INT(pos) + 1;
+  if (position <= 0 || NUM2INT(intruder_list_length(self)) < position)
+    return Qnil;
+
   INTRUDER_TERM *term;
   Data_Get_Struct(self, INTRUDER_TERM, term);
 
-  int pos, i;
-  pos = NUM2INT(position) + 1;
+  int i;
   ETERM *member, *list;
   list = erl_copy_term(term->eterm);
 
-  for(i = 1; i <= pos; i++)
+  for(i = 1; i <= position; i++)
     {
       member = erl_hd(list);
       list = erl_tl(list);

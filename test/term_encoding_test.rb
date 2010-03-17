@@ -32,3 +32,23 @@ describe Intruder::Term do
     end
   end
 end
+
+describe Intruder::List do
+  describe "[]" do
+    before do
+      @list = Term.encode([:a, :b, :c])
+    end
+
+    it "should return the element at the given position" do
+      @list[0].to_s.must_equal "a"
+    end
+
+    it "should return nil for numbers greater than the array size" do
+      @list[@list.size].must_be_nil
+    end
+
+    it "should return nil for numbers smaller than 0" do
+      @list[-1].must_be_nil
+    end
+  end
+end
