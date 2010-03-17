@@ -73,6 +73,7 @@ VALUE rb_value_from_binary(INTRUDER_TERM *iterm) {
   return Qnil;
 }
 
+static ETERM *intruder_eterm_from_array(VALUE obj);
 VALUE intruder_term_encode(VALUE self, VALUE ruby_object) {
   VALUE ret = Qnil;
 
@@ -82,17 +83,37 @@ VALUE intruder_term_encode(VALUE self, VALUE ruby_object) {
     eterm = erl_format("~a", rb_id2name(rb_to_id(ruby_object)));
     break;
   case T_ARRAY :
-    if (RARRAY_LEN(ruby_object)== 0) { /* empty array -> empty list */
-      eterm = erl_format("[]");
-    } else {
-
-    }
+    eterm = intruder_eterm_from_array(ruby_object);
     break;
   default :
     rb_raise(IntruderException, "unable to convert that ruby object to an erlang term");
   }
   ret = rb_value_from_eterm(eterm);
   return ret;
+}
+
+static ETERM *intruder_eterm_from_array(VALUE obj) {
+  int size = RARRAY_LEN(obj);
+
+  if (size == 0)
+    return erl_format("[]");
+
+  ETERM **list = (ETERM **)malloc(sizeof(ETERM*) * size);
+  ETERM *element;
+  INTRUDER_TERM *iterm;
+  VALUE rElement;
+  int i;
+
+  for (i = 0; i < size; i++) {
+    rElement = rb_ary_shift(obj);
+    switch (TYPE(rElement)) {
+    case T_SYMBOL :
+      element = erl_mk_atom(rb_id2name(SYM2ID(rElement)));
+      break;
+    }
+    *(list+i) = element;
+  }
+  return erl_mk_list(list, size);
 }
 
 void Init_intruder_term(){

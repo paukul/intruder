@@ -1,5 +1,5 @@
 `make clean; make all`
-require File.expand_path('../lib/intruder', __FILE__)
+require File.expand_path('../../lib/intruder', __FILE__)
 hostname = `hostname`.chomp
 
 n = Intruder::Node.new('fooz', File.read(File.expand_path('~/.erlang.cookie')))
