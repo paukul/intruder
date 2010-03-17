@@ -110,6 +110,10 @@ static ETERM *intruder_eterm_from_array(VALUE obj) {
     case T_SYMBOL :
       element = erl_mk_atom(rb_id2name(SYM2ID(rElement)));
       break;
+    default :
+      free(list);
+      rb_raise(IntruderException, "unable to convert element %d to an erlang term", i);
+      return NULL;
     }
     *(list+i) = element;
   }
