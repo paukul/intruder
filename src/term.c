@@ -3,20 +3,20 @@
 VALUE IntruderTerm = Qnil;
 
 /* internal methods */
-void free_intruder_term(void *term){
+void free_intruder_term(void *term) {
   INTRUDER_TERM *iterm = term;
   erl_free_compound(iterm->eterm);
   free(term);
 }
 
-INTRUDER_TERM * new_intruder_term(){
+INTRUDER_TERM * new_intruder_term() {
   INTRUDER_TERM *iterm = malloc(sizeof(INTRUDER_TERM));
   return iterm;
 }
 
 /* instance methods */
 
-VALUE intruder_term_to_s(VALUE self){
+VALUE intruder_term_to_s(VALUE self) {
   INTRUDER_TERM *iterm;
   Data_Get_Struct(self, INTRUDER_TERM, iterm);
   ETERM *eterm = iterm->eterm;
@@ -31,22 +31,14 @@ VALUE rb_value_from_eterm(ETERM *eterm)
   INTRUDER_TERM *iterm = new_intruder_term();
   iterm->eterm = eterm;
   if (ERL_IS_LIST(eterm))
-    {
-      rubyObject = rb_value_from_list(iterm);
-    }
+    rubyObject = rb_value_from_list(iterm);
   else if (ERL_IS_TUPLE(eterm))
-    {
-      rubyObject = rb_value_from_tuple(iterm);
-    }
+    rubyObject = rb_value_from_tuple(iterm);
   else if (ERL_IS_ATOM(eterm))
-    {
-      rubyObject = rb_value_from_atom(iterm);
-    }
+    rubyObject = rb_value_from_atom(iterm);
   else
-    {
-      rubyObject = Data_Wrap_Struct(IntruderTerm, 0, free_intruder_term, iterm);
-    }
-  /* for now just return the term object. later return the right one ;) */
+    rubyObject = Data_Wrap_Struct(IntruderTerm, 0, free_intruder_term, iterm);
+
   return rubyObject;
 
   /*   figure out the type of the eterm (more to come) */
@@ -56,49 +48,49 @@ VALUE rb_value_from_eterm(ETERM *eterm)
   /*   return Qnil; */
 }
 
-VALUE rb_value_from_list(INTRUDER_TERM *iterm){
+VALUE rb_value_from_list(INTRUDER_TERM *iterm) {
   VALUE rValue;
   iterm->type = INTRUDER_TYPE_LIST;
   rValue = Data_Wrap_Struct(IntruderList, 0, free_intruder_term, iterm);
   return rValue;
 }
 
-VALUE rb_value_from_tuple(INTRUDER_TERM *iterm){
+VALUE rb_value_from_tuple(INTRUDER_TERM *iterm) {
   VALUE rValue;
   iterm->type = INTRUDER_TYPE_TUPLE;
   rValue = Data_Wrap_Struct(IntruderTuple, 0, free_intruder_term, iterm);
   return rValue;
 }
 
-VALUE rb_value_from_atom(INTRUDER_TERM *iterm){
+VALUE rb_value_from_atom(INTRUDER_TERM *iterm) {
   VALUE rValue;
   iterm->type = INTRUDER_TYPE_ATOM;
   rValue = Data_Wrap_Struct(IntruderAtom, 0, free_intruder_term, iterm);
   return rValue;
 }
 
-VALUE rb_value_from_binary(INTRUDER_TERM *iterm){
+VALUE rb_value_from_binary(INTRUDER_TERM *iterm) {
   return Qnil;
 }
 
-VALUE intruder_term_encode(VALUE self, VALUE ruby_object){
+VALUE intruder_term_encode(VALUE self, VALUE ruby_object) {
   VALUE ret = Qnil;
 
   ETERM *eterm;
-  switch(TYPE(ruby_object))
-    {
-    case T_SYMBOL :
-      eterm = erl_format("~a", rb_id2name(rb_to_id(ruby_object)));
-      break;
-    case T_ARRAY :
-      if (RARRAY_LEN(ruby_object)== 0) /* empty array -> empty list */
-        {
-          eterm = erl_format("[]");
-        }
-      break;
-    default :
-      rb_raise(IntruderException, "unable to convert that ruby object to an erlang term");
+  switch(TYPE(ruby_object)) {
+  case T_SYMBOL :
+    eterm = erl_format("~a", rb_id2name(rb_to_id(ruby_object)));
+    break;
+  case T_ARRAY :
+    if (RARRAY_LEN(ruby_object)== 0) { /* empty array -> empty list */
+      eterm = erl_format("[]");
+    } else {
+
     }
+    break;
+  default :
+    rb_raise(IntruderException, "unable to convert that ruby object to an erlang term");
+  }
   ret = rb_value_from_eterm(eterm);
   return ret;
 }

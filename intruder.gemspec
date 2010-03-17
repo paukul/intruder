@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.extensions << 'extconf.rb'
   s.summary = %q{Communicate with erlang from within ruby as a ruby c erlang node}
-
+  s.add_development_dependency('minitest', '>=1.5.0')
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3

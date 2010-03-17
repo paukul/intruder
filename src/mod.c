@@ -4,20 +4,20 @@ VALUE IntruderMod = Qnil;
 extern VALUE IntruderModule;
 extern VALUE IntruderTerm;
 
-VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node){
+VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node) {
   rb_iv_set(self, "@node", node);
   rb_iv_set(self, "@modname", modname);
   return self;
 }
 
-VALUE intruder_mod_alloc(VALUE class){
+VALUE intruder_mod_alloc(VALUE class) {
   INTRUDER_MOD *im = (INTRUDER_MOD*)malloc(sizeof(INTRUDER_MOD));
   VALUE obj;
   obj = Data_Wrap_Struct(class, 0, free, im);
   return obj;
 }
 
-VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
+VALUE private_intruder_mod_rpc(VALUE self, VALUE args) {
   VALUE fun = rb_ary_shift(args);
   VALUE params = rb_ary_shift(args);
 
@@ -47,7 +47,8 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   DEBUG("\nrpc call to %s:%s\n", mod, RSTRING_PTR(fun));
   ret = ei_rpc(inode->cnode, inode->fd, mod, RSTRING_PTR(fun), rpcargs.buff, rpcargs.index, &result);
 
-  if (ret < 0) raise_rException_for_erl_errno();
+  if (ret < 0)
+    raise_rException_for_erl_errno();
 
   ETERM *tuplep;
   tuplep = erl_decode(result.buff);
@@ -56,7 +57,7 @@ VALUE private_intruder_mod_rpc(VALUE self, VALUE args){
   return rb_value_from_eterm(tuplep);
 }
 
-void Init_intruder_mod(){
+void Init_intruder_mod() {
   IntruderMod = rb_define_class_under(IntruderModule, "Mod", rb_cObject);
 
   /* class methods */
