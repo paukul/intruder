@@ -14,7 +14,7 @@ the test script makes an rpc call to a rabbitmq server and queries for its statu
 * checkout the source
 * `ruby extconf.rb`
 * start your rabbitmq server `sudo rabbitmq-server`
-* `ruby test.rb`
+* `ruby examples/rabbitmq_status_rpc.rb`
 
 the script should print something similar to this:
     --- rabbit call ---
@@ -38,12 +38,12 @@ the script should print something similar to this:
     nodes
 
     --- which is a ---
-Intruder::Atom
+    Intruder::Atom
 
 Why that?
 =========
 
-because thats a fun project to learn c and I need it for another project of mine (namely: paukul/humpty#4)
+because thats a fun project to learn c and I need it for another project of mine (namely: paukul/humpty)
 
 What works already?
 ===================
