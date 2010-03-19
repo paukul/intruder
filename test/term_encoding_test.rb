@@ -21,8 +21,12 @@ describe Intruder::Term do
 
     it "should create lists with atom members for arrays with symbols" do
       list = Term.encode([:a])
-      assert_instance_of List, list
       assert_instance_of Atom, list[0]
+    end
+
+    it "should create lists with strings for arrays with strings" do
+      list = Term.encode(["asdf"])
+      assert_instance_of String, list[0]
     end
 
     it "should raise an exception for datatypes that can't be encodeed" do

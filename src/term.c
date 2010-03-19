@@ -74,22 +74,37 @@ VALUE rb_value_from_binary(INTRUDER_TERM *iterm) {
 }
 
 static ETERM *intruder_eterm_from_array(VALUE obj);
-VALUE intruder_term_encode(VALUE self, VALUE ruby_object) {
+static ETERM *intruder_eterm_from_value(VALUE obj);
+VALUE intruder_term_encode(VALUE self, VALUE obj) {
   VALUE ret = Qnil;
 
-  ETERM *eterm;
-  switch(TYPE(ruby_object)) {
-  case T_SYMBOL :
-    eterm = erl_format("~a", rb_id2name(rb_to_id(ruby_object)));
-    break;
-  case T_ARRAY :
-    eterm = intruder_eterm_from_array(ruby_object);
-    break;
-  default :
+  ETERM *eterm = intruder_eterm_from_value(obj);
+  if (eterm == NULL) {
+    erl_free(eterm);
     rb_raise(IntruderException, "unable to convert that ruby object to an erlang term");
+    return Qnil;
   }
+
   ret = rb_value_from_eterm(eterm);
   return ret;
+}
+
+static ETERM *intruder_eterm_from_value(VALUE obj) {
+  ETERM *eterm;
+  switch(TYPE(obj)) {
+  case T_SYMBOL :
+    eterm = erl_mk_atom(rb_id2name(SYM2ID(obj)));
+    break;
+  case T_ARRAY :
+    eterm = intruder_eterm_from_array(obj);
+    break;
+  case T_STRING :
+    eterm = erl_mk_estring(RSTRING_PTR(obj), RSTRING_LEN(obj));
+    break;
+  default :
+    return NULL;
+  }
+  return eterm;
 }
 
 static ETERM *intruder_eterm_from_array(VALUE obj) {
@@ -99,25 +114,24 @@ static ETERM *intruder_eterm_from_array(VALUE obj) {
     return erl_format("[]");
 
   ETERM **list = (ETERM **)malloc(sizeof(ETERM*) * size);
-  ETERM *element;
+  ETERM *element, *eterm;
   INTRUDER_TERM *iterm;
   VALUE rElement;
   int i;
 
   for (i = 0; i < size; i++) {
     rElement = rb_ary_shift(obj);
-    switch (TYPE(rElement)) {
-    case T_SYMBOL :
-      element = erl_mk_atom(rb_id2name(SYM2ID(rElement)));
-      break;
-    default :
+    element = intruder_eterm_from_value(rElement);
+    if (element == NULL) {
       free(list);
-      rb_raise(IntruderException, "unable to convert element %d to an erlang term", i);
       return NULL;
     }
     *(list+i) = element;
   }
-  return erl_mk_list(list, size);
+
+  eterm = erl_mk_list(list, size);
+  free(list);
+  return eterm;
 }
 
 void Init_intruder_term(){
