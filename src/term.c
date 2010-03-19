@@ -89,6 +89,9 @@ VALUE intruder_term_encode(VALUE self, VALUE obj) {
   return ret;
 }
 
+/* Create an ETERM from a Ruby VALUE
+ * currently it knows how to handle Strings, Symbols and Arrays (of strings, symbols or arrays)
+ */
 static ETERM *intruder_eterm_from_value(VALUE obj) {
   ETERM *eterm;
   switch(TYPE(obj)) {
@@ -107,6 +110,7 @@ static ETERM *intruder_eterm_from_value(VALUE obj) {
   return eterm;
 }
 
+/* creates an ETERM from a ruby array of symbols, strings or arrays again */
 static ETERM *intruder_eterm_from_array(VALUE obj) {
   int size = RARRAY_LEN(obj);
 
@@ -122,7 +126,7 @@ static ETERM *intruder_eterm_from_array(VALUE obj) {
   for (i = 0; i < size; i++) {
     rElement = rb_ary_shift(obj);
     element = intruder_eterm_from_value(rElement);
-    if (element == NULL) {
+    if (element == NULL) { /* it could not be decoded */
       free(list);
       return NULL;
     }
