@@ -12,3 +12,4 @@ n.connect("snaps@#{`hostname`.chomp}")
 
 test = n.mod('test')
 p test.say(Intruder::Term.encode([:a]))
+p test.say(Intruder::Term.encode([Intruder::Binary.new("uauaua")]))

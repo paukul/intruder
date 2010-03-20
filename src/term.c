@@ -36,14 +36,14 @@ VALUE rb_value_from_eterm(ETERM *eterm)
     rubyObject = rb_value_from_tuple(iterm);
   else if (ERL_IS_ATOM(eterm))
     rubyObject = rb_value_from_atom(iterm);
+  else if (ERL_IS_BINARY(eterm))
+    rubyObject = rb_value_from_binary(iterm);
   else
     rubyObject = Data_Wrap_Struct(IntruderTerm, 0, free_intruder_term, iterm);
 
   return rubyObject;
 
   /*   figure out the type of the eterm (more to come) */
-  /*   if (ERL_IS_BINARY(eterm)) */
-  /*     rb_value_from_binary(eterm); */
   /*   erl_free_compound(eterm); */
   /*   return Qnil; */
 }
@@ -97,18 +97,24 @@ VALUE intruder_term_encode(VALUE self, VALUE obj) {
  */
 static ETERM *intruder_eterm_from_value(VALUE obj) {
   ETERM *eterm;
-  switch(TYPE(obj)) {
-  case T_SYMBOL :
-    eterm = erl_mk_atom(rb_id2name(SYM2ID(obj)));
-    break;
-  case T_ARRAY :
-    eterm = intruder_eterm_from_array(obj);
-    break;
-  case T_STRING :
-    eterm = erl_mk_estring(RSTRING_PTR(obj), RSTRING_LEN(obj));
-    break;
-  default :
-    return NULL;
+  if (rb_obj_is_kind_of(obj, IntruderTerm)) {
+    INTRUDER_TERM *iterm;
+    Data_Get_Struct(obj, INTRUDER_TERM, iterm);
+    eterm = iterm->eterm;
+  } else {
+    switch(TYPE(obj)) {
+    case T_SYMBOL :
+      eterm = erl_mk_atom(rb_id2name(SYM2ID(obj)));
+      break;
+    case T_ARRAY :
+      eterm = intruder_eterm_from_array(obj);
+      break;
+    case T_STRING :
+      eterm = erl_mk_estring(RSTRING_PTR(obj), RSTRING_LEN(obj));
+      break;
+    default :
+      eterm = NULL;
+    }
   }
   return eterm;
 }

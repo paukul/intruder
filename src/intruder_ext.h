@@ -17,3 +17,12 @@
 
 extern void raise_rException_for_erl_errno();
 #endif /* #ifndef INTRUDER_EXT_H */
+
+/*
+ * TODO: Add Check_Type checks for every method that needs a specific argument type 
+ * TODO: macros for retrival of the class structs like:
+ *       #define GetDBM(obj, dbmp) {\
+ *          Data_Get_Struct(obj, struct dbmdata, dbmp);\
+ *          if (dbmp->di_dbm == 0) closed_dbm();\
+ *       }
+*/
