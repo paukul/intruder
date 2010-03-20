@@ -54,6 +54,9 @@ VALUE intruder_mod_rpc(VALUE self, VALUE args) {
   tuplep = erl_decode(result.buff);
   ei_x_free(&rpcargs);
   ei_x_free(&result);
+/*   printf("result: \n"); */
+/*   erl_print_term(stdout, tuplep); */
+/*   fflush(stdout); */
   return rb_value_from_eterm(tuplep);
 }
 

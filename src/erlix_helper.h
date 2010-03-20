@@ -6,6 +6,7 @@
 #include "ei.h"
 
 #include <ctype.h>
+#include <string.h>
 
 void fill_string(VALUE *str, ETERM *ep);
 

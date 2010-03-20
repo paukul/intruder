@@ -94,8 +94,9 @@ void fill_string(VALUE *str,ETERM *ep){
       rb_funcall(*str,concat,1,rb_str_new2("\'"));
     }
   }else if(ERL_IS_PID(ep)){
-    char tmp_buf_pid[24];
-    memset(tmp_buf_pid,0,24);
+    int buffsize = 9 + strlen(ERL_PID_NODE(ep));
+    char tmp_buf_pid[buffsize];
+    memset(tmp_buf_pid,0,buffsize);
     sprintf(tmp_buf_pid,"<%s.%d.%d>",ERL_PID_NODE(ep),ERL_PID_NUMBER(ep), ERL_PID_SERIAL(ep));
     rb_funcall(*str,concat,1,rb_str_new2(tmp_buf_pid));
   }else if(ERL_IS_PORT(ep)){

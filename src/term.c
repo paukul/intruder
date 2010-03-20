@@ -21,6 +21,10 @@ VALUE intruder_term_to_s(VALUE self) {
   Data_Get_Struct(self, INTRUDER_TERM, iterm);
   ETERM *eterm = iterm->eterm;
   VALUE ret = rb_str_new2("");
+ /*  int ei_s_print_term(char** s, const char* buf, int* index) */
+/*   int index = 0; */
+/*   char *buff; */
+/*   int ei_s_print_term(&buff, , int* index); */
   fill_string(&ret, eterm);
   return ret;
 }

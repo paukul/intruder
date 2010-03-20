@@ -12,7 +12,7 @@ include_dir = ei_dir + '/include/'
 lib_dir = ei_dir + '/lib/'
 
 $LDFLAGS << " -L#{lib_dir} -lei -lerl_interface"
-$CPPFLAGS << ' -D_REENTRANT -g'
+$CPPFLAGS << ' -D_REENTRANT -g -g3 -gdwarf-2'
 
 if find_header('ei.h', include_dir)
   create_makefile(extension_name, src_dir)
