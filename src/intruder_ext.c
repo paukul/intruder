@@ -18,6 +18,7 @@ void Init_intruder_ext(){
   Init_intruder_list();
   Init_intruder_tuple();
   Init_intruder_atom();
+  Init_intruder_binary();
   Init_intruder_node();
   Init_intruder_mod();
 }

@@ -70,6 +70,9 @@ VALUE rb_value_from_atom(INTRUDER_TERM *iterm) {
 }
 
 VALUE rb_value_from_binary(INTRUDER_TERM *iterm) {
+  VALUE rValue;
+  iterm->type = INTRUDER_TYPE_BINARY;
+  rValue = Data_Wrap_Struct(IntruderBinary, 0, free_intruder_term, iterm);
   return Qnil;
 }
 

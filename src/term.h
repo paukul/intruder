@@ -21,12 +21,14 @@
 #define INTRUDER_TYPE_BIN        9
 #define INTRUDER_TYPE_CON       10
 #define INTRUDER_TYPE_STRING    11
+#define INTRUDER_TYPE_BINARY    12
 
 extern VALUE IntruderModule;
 extern VALUE IntruderList;
 extern VALUE IntruderTuple;
 extern VALUE IntruderAtom;
 extern VALUE IntruderException;
+extern VALUE IntruderBinary;
 
 typedef struct intruder_term
 {
