@@ -17,7 +17,7 @@ VALUE intruder_mod_alloc(VALUE class) {
   return obj;
 }
 
-VALUE private_intruder_mod_rpc(VALUE self, VALUE args) {
+VALUE intruder_mod_rpc(VALUE self, VALUE args) {
   VALUE fun = rb_ary_shift(args);
   VALUE params = rb_ary_shift(args);
 
@@ -65,5 +65,5 @@ void Init_intruder_mod() {
 
   /* instance methods */
   rb_define_method(IntruderMod, "initialize", intruder_mod_init, 2);
-  rb_define_private_method(IntruderMod, "rpc", private_intruder_mod_rpc, -2);
+  rb_define_method(IntruderMod, "rpc", intruder_mod_rpc, -2);
 }
