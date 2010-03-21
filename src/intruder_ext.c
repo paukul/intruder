@@ -3,6 +3,7 @@
 /* common imports */
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 /* TODO in den header*/
 VALUE IntruderModule = Qnil;
@@ -24,10 +25,10 @@ void Init_intruder_ext(){
 }
 
 void raise_rException_for_erl_errno(){
-    DEBUG("Result: %d\n", erl_errno);
-    DEBUG("ERHOSTUNREACH: %d\n", EHOSTUNREACH);
-    DEBUG("ENOMEM: %d\n", ENOMEM);
-    DEBUG("EIO: %d\n", EIO);
+/*     DEBUG("Result: %d\n", erl_errno); */
+/*     DEBUG("ERHOSTUNREACH: %d\n", EHOSTUNREACH); */
+/*     DEBUG("ENOMEM: %d\n", ENOMEM); */
+/*     DEBUG("EIO: %d\n", EIO); */
 
     switch( erl_errno )
       {
@@ -39,6 +40,9 @@ void raise_rException_for_erl_errno(){
         break;
       case EIO :
         rb_raise(IntruderNodeException, "IO error");
+        break;
+      default :
+        rb_raise(IntruderNodeException, strerror(erl_errno));
         break;
       }
 }
