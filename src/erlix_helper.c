@@ -35,7 +35,7 @@ static int is_printable_list(const ETERM* term)
 
 static void fill_printable_list(VALUE *str, const ETERM* ep){
   ID concat=rb_intern("concat");
-  rb_funcall(*str,concat,1,rb_str_new2("\""));
+/*   rb_funcall(*str,concat,1,rb_str_new2("\"")); */
 
   while (ERL_IS_CONS(ep)) {
     int c = ERL_INT_VALUE((ETERM*)ERL_CONS_HEAD(ep));
@@ -67,7 +67,7 @@ static void fill_printable_list(VALUE *str, const ETERM* ep){
     }
     ep = (ETERM*)ERL_CONS_TAIL(ep);
   }
-  rb_funcall(*str,concat,1,rb_str_new2("\""));
+/*   rb_funcall(*str,concat,1,rb_str_new2("\"")); */
 }
 
 void fill_string(VALUE *str,ETERM *ep){

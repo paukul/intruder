@@ -5,9 +5,27 @@ VALUE IntruderTuple = Qnil;
 void Init_intruder_tuple() {
   IntruderTuple = rb_define_class_under(IntruderModule, "Tuple", IntruderTerm);
 
+  rb_include_module(IntruderTuple, rb_mEnumerable);
+  rb_define_method(IntruderTuple, "each", intruder_tuple_each, 0);
   rb_define_method(IntruderTuple, "[]", intruder_tuple_member_at, 1);
   rb_define_method(IntruderTuple, "length", intruder_tuple_length, 0);
   rb_define_alias(IntruderTuple, "size", "length");
+}
+
+VALUE intruder_tuple_each(VALUE self) {
+  INTRUDER_TERM *iterm;
+  Data_Get_Struct(self, INTRUDER_TERM, iterm);
+  int i;
+  for (i = 1; i <= erl_size(iterm->eterm); i++) {
+    rb_yield(rb_value_from_eterm(erl_element(i, iterm-> eterm)));
+  }
+  return Qnil;
+}
+
+VALUE intruder_tuple_init(VALUE self, VALUE arr) {
+  VALUE obj;
+  /* TODO later */
+  return obj;
 }
 
 VALUE intruder_tuple_member_at(VALUE self, VALUE position) {

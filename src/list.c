@@ -6,6 +6,7 @@ void Init_intruder_list()
 {
   IntruderList = rb_define_class_under(IntruderModule, "List", IntruderTerm);
 
+  rb_include_module(IntruderList, rb_mEnumerable);
   rb_define_method(IntruderList, "each", intruder_list_each, 0);
   rb_define_method(IntruderList, "[]", intruder_list_member_at, 1);
   rb_define_method(IntruderList, "length", intruder_list_length, 0);
