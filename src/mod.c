@@ -3,6 +3,7 @@
 VALUE IntruderMod = Qnil;
 extern VALUE IntruderModule;
 extern VALUE IntruderTerm;
+extern pthread_mutex_t mutex;
 
 VALUE intruder_mod_init(VALUE self, VALUE modname, VALUE node) {
   rb_iv_set(self, "@node", node);
@@ -45,8 +46,9 @@ VALUE intruder_mod_rpc(VALUE self, VALUE args) {
 
   /* RPC call */
   DEBUG("\nrpc call to %s:%s\n", mod, RSTRING_PTR(fun));
+  pthread_mutex_lock(&mutex);
   ret = ei_rpc(inode->cnode, inode->fd, mod, RSTRING_PTR(fun), rpcargs.buff, rpcargs.index, &result);
-
+  pthread_mutex_unlock(&mutex);
   if (ret < 0)
     raise_rException_for_erl_errno();
 

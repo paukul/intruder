@@ -19,6 +19,7 @@ fd_set socks;
 int highsock;
 int readsocks;
 int connectlist_inited = 0;
+pthread_mutex_t mutex;
 
 /* internal methods */
 static void declare_attr_accessors();
@@ -165,6 +166,8 @@ void *aliveloop() {
   struct timeval timeout;
 
   while(1) {
+    pthread_mutex_lock(&mutex);
+
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
 
@@ -183,5 +186,6 @@ void *aliveloop() {
 /*       fflush(stdout); */
     } else
       read_socks();
+    pthread_mutex_unlock(&mutex);
   }
 }

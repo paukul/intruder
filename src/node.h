@@ -9,8 +9,6 @@
 #include "intruder_ext.h"
 
 #include <stdio.h>
-#include <pthread.h>
-#include <sys/time.h>
 
 #define INTRUDER_DEBUG
 

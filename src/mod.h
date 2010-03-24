@@ -5,6 +5,7 @@
 #include "ei.h"
 #include "erl_interface.h"
 #include <stdio.h>
+#include <pthread.h>
 
 #include "intruder_ext.h"
 #include "node.h"
