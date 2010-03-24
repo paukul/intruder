@@ -14,7 +14,7 @@ VALUE IntruderNode = Qnil;
 VALUE IntruderNodeException = Qnil;
 int node_count = 0;
 pthread_t alive_thread;
-int connectlist[5];
+INTRUDER_NODE **connectlist = (INTRUDER_NODE **)malloc(sizeof(INTRUDER_NODE*) * CONBUFFSIZE);
 fd_set socks;
 int highsock;
 int readsocks;
@@ -25,6 +25,8 @@ pthread_mutex_t mutex;
 static void declare_attr_accessors();
 static void free_class_struct(void *class_struct);
 
+void lock_node(INTRUDER_NODE node);
+void unlock_node(INTRUDER_NODE node);
 void read_socks();
 void *aliveloop();
 void build_select_list();
@@ -90,7 +92,7 @@ VALUE intruder_node_connect(VALUE self, VALUE remote_node){
   class_struct->status = INTRUDER_CONNECTED;
 
 /*   printf("setting node %d on the connectlist\n", node_count); */
-  connectlist[node_count] = class_struct->fd;
+  *(connectlist[node_count]) = class_struct;
   node_count++;
 
   if (alive_thread == NULL) {
@@ -166,8 +168,6 @@ void *aliveloop() {
   struct timeval timeout;
 
   while(1) {
-    pthread_mutex_lock(&mutex);
-
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
 
@@ -186,6 +186,13 @@ void *aliveloop() {
 /*       fflush(stdout); */
     } else
       read_socks();
-    pthread_mutex_unlock(&mutex);
   }
+}
+
+void lock_node(INTRUDER_NODE *node) {
+  pthread_mutex_lock(node->mutex);
+}
+
+void unlock_node(INTRUDER_NODE *node) {
+  pthread_mutex_unlock(node->mutex);
 }
