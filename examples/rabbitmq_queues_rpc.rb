@@ -1,7 +1,7 @@
 `make clean; make all`
 require File.expand_path('../../lib/intruder', __FILE__)
-hostname = `hostname`.chomp
-
+#hostname = `hostname`.chomp
+hostname = 'nb-pfriederich'
 n = Intruder::Node.new('fooz', File.read(File.expand_path('~/.erlang.cookie')))
 
 puts "--- rabbit call ---\n"
