@@ -47,18 +47,20 @@ VALUE intruder_mod_rpc(VALUE self, VALUE args) {
   DEBUG("\nrpc call to %s:%s\n", mod, RSTRING_PTR(fun));
   lock_node(inode);
   ret = ei_rpc(inode->cnode, inode->fd, mod, RSTRING_PTR(fun), rpcargs.buff, rpcargs.index, &result);
-  unlock_node(inode);
-  if (ret < 0)
+  if (ret < 0) {
     raise_rException_for_erl_errno();
-
-  ETERM *tuplep;
-  tuplep = erl_decode(result.buff);
-  ei_x_free(&rpcargs);
-  ei_x_free(&result);
-/*   printf("result: \n"); */
-/*   erl_print_term(stdout, tuplep); */
-/*   fflush(stdout); */
-  return rb_value_from_eterm(tuplep);
+    return Qnil;
+  } else {
+    ETERM *tuplep;
+    tuplep = erl_decode(result.buff);
+    ei_x_free(&rpcargs);
+    ei_x_free(&result);
+    unlock_node(inode);
+    /*   printf("result: \n"); */
+    /*   erl_print_term(stdout, tuplep); */
+    /*   fflush(stdout); */
+    return rb_value_from_eterm(tuplep);
+  }
 }
 
 void Init_intruder_mod() {

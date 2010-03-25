@@ -14,15 +14,18 @@ VALUE IntruderNode = Qnil;
 VALUE IntruderNodeException = Qnil;
 int node_count = 0;
 pthread_t alive_thread;
+pthread_mutex_t **mutexes_locked_for_keep_alive;
 INTRUDER_NODE **connectlist;
 fd_set socks;
 int highsock;
 int readsocks;
 int connectlist_inited = 0;
+unsigned int tmo = 200;
 
 /* internal methods */
 static void declare_attr_accessors();
 static void free_class_struct(void *class_struct);
+static void release_locks();
 
 void lock_node(INTRUDER_NODE *node);
 void unlock_node(INTRUDER_NODE *node);
@@ -56,6 +59,7 @@ VALUE intruder_node_init(VALUE self, VALUE sname, VALUE cookie){
 
   if (!connectlist_inited) {
     connectlist = (INTRUDER_NODE **)malloc(sizeof(INTRUDER_NODE*) * CONBUFFSIZE);
+    mutexes_locked_for_keep_alive = (pthread_mutex_t **)malloc(sizeof(pthread_mutex_t *) * CONBUFFSIZE);
     printf("initializing connectlist\n");
     connectlist_inited = 1;
   }
@@ -87,12 +91,12 @@ VALUE intruder_node_connect(VALUE self, VALUE remote_node){
   INTRUDER_NODE *class_struct;
   Data_Get_Struct(self, INTRUDER_NODE, class_struct);
 
-  if((class_struct->fd = ei_connect(class_struct->cnode, RSTRING_PTR(remote_node))) < 0)
+  if((class_struct->fd = ei_connect_tmo(class_struct->cnode, RSTRING_PTR(remote_node), tmo)) < 0)
     raise_rException_for_erl_errno();
 
   class_struct->status = INTRUDER_CONNECTED;
 
-/*   printf("setting node %d on the connectlist\n", node_count); */
+  /*   printf("setting node %d on the connectlist\n", node_count); */
   connectlist[node_count] = class_struct;
   node_count++;
 
@@ -133,15 +137,21 @@ static void declare_attr_accessors(){
 }
 
 void build_select_list() {
-  int listnum;
+  int listnum, locks = 0;
   FD_ZERO(&socks);
-/*   printf("building select list\n"); */
-  for (listnum = 0; listnum < 5; listnum++) {
-    if (connectlist[listnum] != 0) {
-/*       printf("adding fd %d (%d) to connectlist\n", connectlist[listnum], listnum); */
-      FD_SET(connectlist[listnum]->fd, &socks);
-      if (connectlist[listnum]->fd > highsock)
-        highsock = connectlist[listnum]->fd;
+
+  for (listnum = 0; listnum < CONBUFFSIZE; listnum++) {
+    if (connectlist[listnum] != NULL) {
+      printf("may add fd %d (%d) to connectlist\n", connectlist[listnum]->fd, listnum);
+      if (pthread_mutex_trylock(connectlist[listnum]->mutex)) {
+        mutexes_locked_for_keep_alive[locks++] = connectlist[listnum]->mutex;
+        FD_SET(connectlist[listnum]->fd, &socks);
+        if (connectlist[listnum]->fd > highsock)
+          highsock = connectlist[listnum]->fd;
+      }
+      else {
+        printf("fd %d is locked, skipping\n", connectlist[listnum]->fd);
+      }
     }
   }
 }
@@ -151,7 +161,7 @@ void read_socks() {
   int got;
   char buf[400];
 
-/*   printf("reading open sockets\n"); */
+  /*   printf("reading open sockets\n"); */
   printf("Nodecount = %d\n", node_count);
   for (listnum = 0; listnum < node_count; listnum++) {
     printf("checking socket %d (%d)\n", connectlist[listnum]->fd, listnum);
@@ -162,7 +172,7 @@ void read_socks() {
         printf("keeping alive!!\n");
         continue;
       } else {
-        rb_raise(rb_eRuntimeError, "Keep Alive thread cought a message other than ERL_TICK");
+        /* rb_raise(rb_eRuntimeError, "Keep Alive thread cought a message other than ERL_TICK"); */
       }
     }
   }
@@ -176,7 +186,7 @@ void *aliveloop() {
     timeout.tv_usec = 0;
 
     build_select_list();
-/*     printf("waiting for sockets\n"); */
+    /*     printf("waiting for sockets\n"); */
     readsocks = select(highsock+1, &socks, (fd_set *) 0, (fd_set *) 0, &timeout);
 
     if (readsocks < 0) {
@@ -186,10 +196,27 @@ void *aliveloop() {
     if (readsocks == 0) {
       /* Nothing ready to read, just show that
          we're alive */
-/*       printf("."); */
-/*       fflush(stdout); */
+      /*       printf("."); */
+      /*       fflush(stdout); */
     } else
       read_socks();
+    release_locks(); /* TODO: maybe return the locklist from build_select_list and pass in as an argument here */
+  }
+}
+
+static void release_locks() {
+  int i;
+  pthread_mutex_t *mutex;
+  printf("cleaning up locks");
+  for (i = 0; i < CONBUFFSIZE; i++) {
+    if ((mutex = mutexes_locked_for_keep_alive[i]) != NULL) {
+      printf(" %d", i);
+      pthread_mutex_unlock(mutex);
+      mutexes_locked_for_keep_alive[i] = NULL;
+    } else {
+      printf("\n");
+      break;
+    }
   }
 }
 

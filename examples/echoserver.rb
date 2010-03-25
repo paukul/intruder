@@ -8,7 +8,9 @@ require File.expand_path('../../lib/intruder', __FILE__)
 include Intruder
 
 n = Node.new('fazy', File.read(File.expand_path('~/.erlang.cookie')))
-n.connect("snaps@#{`hostname`.chomp}")
+#hostname = `hostname`.chomp
+hostname = 'nb-pfriederich'
+n.connect("snaps@#{hostname}")
 
 test = n.mod('test')
 p test.say(Intruder::Term.encode([:a]))
