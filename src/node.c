@@ -20,7 +20,7 @@ fd_set socks;
 int highsock;
 int readsocks;
 int connectlist_inited = 0;
-unsigned int tmo = 200;
+unsigned int tmo = 1;
 
 /* internal methods */
 static void declare_attr_accessors();
@@ -60,7 +60,6 @@ VALUE intruder_node_init(VALUE self, VALUE sname, VALUE cookie){
   if (!connectlist_inited) {
     connectlist = (INTRUDER_NODE **)malloc(sizeof(INTRUDER_NODE*) * CONBUFFSIZE);
     mutexes_locked_for_keep_alive = (pthread_mutex_t **)malloc(sizeof(pthread_mutex_t *) * CONBUFFSIZE);
-    printf("initializing connectlist\n");
     connectlist_inited = 1;
   }
 
@@ -142,15 +141,15 @@ void build_select_list() {
 
   for (listnum = 0; listnum < CONBUFFSIZE; listnum++) {
     if (connectlist[listnum] != NULL) {
-      printf("may add fd %d (%d) to connectlist\n", connectlist[listnum]->fd, listnum);
-      if (pthread_mutex_trylock(connectlist[listnum]->mutex)) {
+/*       printf("trying to get lock for fd %d (%d)\n", connectlist[listnum]->fd, listnum); */
+      if (!pthread_mutex_trylock(connectlist[listnum]->mutex)) {
         mutexes_locked_for_keep_alive[locks++] = connectlist[listnum]->mutex;
         FD_SET(connectlist[listnum]->fd, &socks);
         if (connectlist[listnum]->fd > highsock)
           highsock = connectlist[listnum]->fd;
       }
       else {
-        printf("fd %d is locked, skipping\n", connectlist[listnum]->fd);
+/*         printf("fd %d is already locked, skipping\n", connectlist[listnum]->fd); */
       }
     }
   }
@@ -161,18 +160,14 @@ void read_socks() {
   int got;
   char buf[400];
 
-  /*   printf("reading open sockets\n"); */
-  printf("Nodecount = %d\n", node_count);
   for (listnum = 0; listnum < node_count; listnum++) {
-    printf("checking socket %d (%d)\n", connectlist[listnum]->fd, listnum);
+/*     printf("checking socket %d (%d)\n", connectlist[listnum]->fd, listnum); */
     if (connectlist[listnum] != 0 && FD_ISSET(connectlist[listnum]->fd, &socks)) {
-      printf("erl_receive\n");
       got = erl_receive(connectlist[listnum]->fd, buf, 400);
-      if (got == ERL_TICK) {
-        printf("keeping alive!!\n");
+      if (got == ERL_TICK) { /* keeping the node alive */
         continue;
       } else {
-        /* rb_raise(rb_eRuntimeError, "Keep Alive thread cought a message other than ERL_TICK"); */
+        rb_raise(rb_eRuntimeError, "Keep Alive thread cought a message other than ERL_TICK");
       }
     }
   }
@@ -193,12 +188,7 @@ void *aliveloop() {
       perror("select");
       exit(EXIT_FAILURE);
     }
-    if (readsocks == 0) {
-      /* Nothing ready to read, just show that
-         we're alive */
-      /*       printf("."); */
-      /*       fflush(stdout); */
-    } else
+    if (readsocks != 0)
       read_socks();
     release_locks(); /* TODO: maybe return the locklist from build_select_list and pass in as an argument here */
   }
@@ -207,14 +197,14 @@ void *aliveloop() {
 static void release_locks() {
   int i;
   pthread_mutex_t *mutex;
-  printf("cleaning up locks");
+/*   printf("cleaning up locks"); */
   for (i = 0; i < CONBUFFSIZE; i++) {
     if ((mutex = mutexes_locked_for_keep_alive[i]) != NULL) {
-      printf(" %d", i);
+/*       printf(" %d", i); */
       pthread_mutex_unlock(mutex);
       mutexes_locked_for_keep_alive[i] = NULL;
     } else {
-      printf("\n");
+/*       printf("\n"); */
       break;
     }
   }
