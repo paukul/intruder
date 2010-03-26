@@ -39,14 +39,11 @@ VALUE intruder_mod_rpc(VALUE self, VALUE args) {
   ei_x_new(&rpcargs);
   ei_x_encode_term(&rpcargs, iterm->eterm);
 
-/*   printf("sending params: "); */
   ei_print_term(stdout, rpcargs.buff, &index);
   fflush(stdout);
 
   /* RPC call */
-/*   DEBUG("\nrpc call to %s:%s\n", mod, RSTRING_PTR(fun)); */
   pthread_mutex_lock(inode->mutex);
-/*   printf("++ locked for RPC\n"); */
   ret = ei_rpc(inode->cnode, inode->fd, mod, RSTRING_PTR(fun), rpcargs.buff, rpcargs.index, &result);
   if (ret < 0) {
     raise_rException_for_erl_errno();
@@ -57,10 +54,6 @@ VALUE intruder_mod_rpc(VALUE self, VALUE args) {
     ei_x_free(&rpcargs);
     ei_x_free(&result);
     pthread_mutex_unlock(inode->mutex);
-/*     printf("++ unlocked after RPC\n"); */
-    /*   printf("result: \n"); */
-    /*   erl_print_term(stdout, tuplep); */
-    /*   fflush(stdout); */
     return rb_value_from_eterm(tuplep);
   }
 }

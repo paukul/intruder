@@ -59,7 +59,6 @@ VALUE intruder_node_init(VALUE self, VALUE sname, VALUE cookie){
   rb_iv_set(self, "@cookie", cookie);
 
   if (!connectlist_inited) {
-    printf("init connlist\n");
     connectlist = (INTRUDER_NODE **)calloc(CONBUFFSIZE, sizeof(INTRUDER_NODE*));
     mutexes_locked_for_keep_alive = (pthread_mutex_t **)calloc(CONBUFFSIZE, sizeof(pthread_mutex_t *));
     connectlist_inited = 1;
@@ -96,8 +95,6 @@ VALUE intruder_node_connect(VALUE self, VALUE remote_node){
     raise_rException_for_erl_errno();
 
   class_struct->status = INTRUDER_CONNECTED;
-
-  printf("setting node %d on the connectlist\n", node_count);
   connectlist[node_count] = class_struct;
   node_count++;
 
@@ -143,7 +140,6 @@ void build_select_list() {
 
   for (listnum = 0; listnum < node_count; listnum++) {
     if (connectlist[listnum] != NULL) {
-/*       printf("trying to get lock for fd %d (%d)\n", connectlist[listnum]->fd, listnum); */
       if (!pthread_mutex_trylock(connectlist[listnum]->mutex)) {
         mutexes_locked_for_keep_alive[locks++] = connectlist[listnum]->mutex;
         FD_SET(connectlist[listnum]->fd, &socks);
@@ -151,7 +147,7 @@ void build_select_list() {
           highsock = connectlist[listnum]->fd;
       }
       else {
-        printf("fd %d is already locked, skipping\n", connectlist[listnum]->fd);
+/*         printf("fd %d is already locked, skipping\n", connectlist[listnum]->fd); */
       }
     }
   }
