@@ -39,8 +39,8 @@ VALUE intruder_mod_rpc(VALUE self, VALUE args) {
   ei_x_new(&rpcargs);
   ei_x_encode_term(&rpcargs, iterm->eterm);
 
-  ei_print_term(stdout, rpcargs.buff, &index);
-  fflush(stdout);
+/*   ei_print_term(stdout, rpcargs.buff, &index); */
+/*   fflush(stdout); */
 
   /* RPC call */
   pthread_mutex_lock(inode->mutex);

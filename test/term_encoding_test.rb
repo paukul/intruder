@@ -59,9 +59,16 @@ end
 
 describe Intruder::Binary do
   describe "new" do
+    before do
+      @bin = Intruder::Binary.new("foo")
+    end
+
     it "should create a new binary from a string" do
-      bin = Intruder::Binary.new("foo")
-      bin.must_be_instance_of(Intruder::Binary)
+      @bin.must_be_instance_of(Intruder::Binary)
+    end
+
+    it "should encode the binary to a human readable string if possible" do
+      @bin.to_s.must_equal("foo")
     end
   end
 end

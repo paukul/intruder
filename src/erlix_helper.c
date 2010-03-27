@@ -142,7 +142,7 @@ void fill_string(VALUE *str,ETERM *ep){
     }
     rb_funcall(*str,concat,1,rb_str_new2("}"));
   }else if(ERL_IS_BINARY(ep)){
-      rb_funcall(*str,concat,1,rb_str_new2("#Bin"));
+      rb_funcall(*str,concat,1,rb_str_new2(ERL_BIN_PTR(ep)));
   }else if(ERL_IS_INTEGER(ep)){
       char tmp_buf_num[24];
       memset(tmp_buf_num,0,24);
