@@ -1,4 +1,3 @@
-`make clean; make`
 #
 # Run the test.erl script before:
 #  erl test.erl -sname snaps
@@ -13,5 +12,5 @@ hostname = 'nb-pfriederich'
 n.connect("snaps@#{hostname}")
 
 test = n.mod('test')
-p test.say(Intruder::Term.encode([:a]))
+p test.say(Intruder::Term.encode([[:a, :b, :c]]))
 p test.say(Intruder::Term.encode([Intruder::Binary.new("uauaua")]))
