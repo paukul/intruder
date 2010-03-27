@@ -75,7 +75,7 @@ VALUE intruder_node_init(VALUE self, VALUE sname, VALUE cookie){
 
 VALUE intruder_node_status(VALUE self){
   CLASS_STRUCT;
-  if(class_struct->status == INTRUDER_CONNECTED)
+  if (class_struct->status == INTRUDER_CONNECTED)
     return STOSYM("connected");
   else
     return STOSYM("disconnected");

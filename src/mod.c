@@ -18,6 +18,13 @@ VALUE intruder_mod_alloc(VALUE class) {
 }
 
 VALUE intruder_mod_rpc(VALUE self, VALUE args) {
+  /* get the data struct of the Intruder::Node in the Intruder::Mod */
+  INTRUDER_NODE *inode;
+  Data_Get_Struct(rb_iv_get(self, "@node"), INTRUDER_NODE, inode);
+  if (inode->status == INTRUDER_DISCONNECTED) {
+    rb_raise(IntruderException, "node not connected");
+  }
+
   VALUE fun = rb_ary_shift(args);
   VALUE params = rb_ary_shift(args);
 
@@ -28,9 +35,6 @@ VALUE intruder_mod_rpc(VALUE self, VALUE args) {
   /* name of the module to call is set in a ruby ivar */
   char *mod = RSTRING_PTR(rb_iv_get(self, "@modname"));
   int ret;
-  /* get the data struct of the Intruder::Node in the Intruder::Mod */
-  INTRUDER_NODE *inode;
-  Data_Get_Struct(rb_iv_get(self, "@node"), INTRUDER_NODE, inode);
 
   /* prepare the erlang stuff */
   int index = 0;
