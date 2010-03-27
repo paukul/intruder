@@ -6,6 +6,7 @@ void Init_intruder_tuple() {
   IntruderTuple = rb_define_class_under(IntruderModule, "Tuple", IntruderTerm);
 
   rb_include_module(IntruderTuple, rb_mEnumerable);
+  rb_define_method(IntruderTuple, "initialize", intruder_tuple_init, 1);
   rb_define_method(IntruderTuple, "each", intruder_tuple_each, 0);
   rb_define_method(IntruderTuple, "[]", intruder_tuple_member_at, 1);
   rb_define_method(IntruderTuple, "length", intruder_tuple_length, 0);
@@ -23,9 +24,17 @@ VALUE intruder_tuple_each(VALUE self) {
 }
 
 VALUE intruder_tuple_init(VALUE self, VALUE arr) {
-  VALUE obj;
-  /* TODO later */
-  return obj;
+  int i, arrsize = RARRAY_LEN(arr);
+  INTRUDER_TERM *iterm;
+  ETERM **members = (ETERM**)malloc(sizeof(ETERM*) * arrsize);
+
+  for (i = 0; i < arrsize; i++) {
+    members[i] = intruder_eterm_from_value(rb_ary_shift(arr));
+  }
+
+  Data_Get_Struct(self, INTRUDER_TERM, iterm);
+  iterm->eterm = erl_mk_tuple(members, arrsize);
+  return self;
 }
 
 VALUE intruder_tuple_member_at(VALUE self, VALUE position) {

@@ -35,6 +35,20 @@ describe Intruder::Term do
       end
     end
   end
+
+#  describe ".to_hash" do
+#    it "should decode lists of tuples with two members using the members as key / value pairs" do
+#      Intruder::
+#    end
+#  end
+end
+
+describe Intruder::Tuple do
+  describe ".new" do
+    it "should create a tuple from the contents of an array" do
+      Intruder::Tuple.new([:a]).must_be_instance_of(Intruder::Tuple)
+    end
+  end
 end
 
 describe Intruder::List do

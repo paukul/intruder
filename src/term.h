@@ -42,6 +42,8 @@ void Init_intruder_term();
 VALUE intruder_term_to_s(VALUE self);
 VALUE intruder_term_encode(VALUE self, VALUE ruby_object);
 
+  /* allocation */
+VALUE intruder_term_alloc(VALUE class);
 void free_intruder_term(void *term);
 INTRUDER_TERM *new_intruder_term();
 
@@ -51,5 +53,6 @@ VALUE rb_value_from_list(INTRUDER_TERM *iterm);
 VALUE rb_value_from_tuple(INTRUDER_TERM *iterm);
 VALUE rb_value_from_atom(INTRUDER_TERM *iterm);
 VALUE rb_value_from_binary(INTRUDER_TERM *iterm);
+ETERM *intruder_eterm_from_value(VALUE obj);
 
 #endif /* ifndef INTRUDER_TERM_H */

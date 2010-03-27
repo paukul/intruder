@@ -9,6 +9,5 @@ extern VALUE IntruderTerm;
 
 void Init_intruder_binary();
 VALUE intruder_binary_init(VALUE self, VALUE str);
-VALUE intruder_binary_alloc(VALUE class);
 
 #endif /* INTRUDER_BINARY_H */

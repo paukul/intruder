@@ -81,7 +81,6 @@ VALUE rb_value_from_binary(INTRUDER_TERM *iterm) {
 }
 
 static ETERM *intruder_eterm_from_array(VALUE obj);
-static ETERM *intruder_eterm_from_value(VALUE obj);
 VALUE intruder_term_encode(VALUE self, VALUE obj) {
   VALUE ret = Qnil;
 
@@ -99,7 +98,7 @@ VALUE intruder_term_encode(VALUE self, VALUE obj) {
 /* Create an ETERM from a Ruby VALUE
  * currently it knows how to handle Strings, Symbols and Arrays (of strings, symbols or arrays)
  */
-static ETERM *intruder_eterm_from_value(VALUE obj) {
+ETERM *intruder_eterm_from_value(VALUE obj) {
   ETERM *eterm;
   if (rb_obj_is_kind_of(obj, IntruderTerm)) {
     INTRUDER_TERM *iterm;
@@ -151,10 +150,19 @@ static ETERM *intruder_eterm_from_array(VALUE obj) {
   return eterm;
 }
 
+VALUE intruder_term_alloc(VALUE class) {
+  INTRUDER_TERM *iterm = new_intruder_term();
+  VALUE obj = Data_Wrap_Struct(class, 0, free_intruder_term, iterm);
+  return obj;
+}
+
 void Init_intruder_term(){
   IntruderTerm = rb_define_class_under(IntruderModule, "Term", rb_cObject);
 
   /* instance methods */
   rb_define_method(IntruderTerm, "to_s", intruder_term_to_s, 0);
   rb_define_singleton_method(IntruderTerm, "encode", intruder_term_encode, 1);
+
+  /* allocation */
+  rb_define_alloc_func(IntruderTerm, intruder_term_alloc);
 }

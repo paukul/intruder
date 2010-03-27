@@ -7,15 +7,6 @@ void Init_intruder_binary() {
 
   /* class methods */
   rb_define_method(IntruderBinary, "initialize", intruder_binary_init, 1);
-
-  /* allocation */
-  rb_define_alloc_func(IntruderBinary, intruder_binary_alloc);
-}
-
-VALUE intruder_binary_alloc(VALUE class) {
-  INTRUDER_TERM *iterm = new_intruder_term();
-  VALUE obj = Data_Wrap_Struct(class, 0, free_intruder_term, iterm);
-  return obj;
 }
 
 VALUE intruder_binary_init(VALUE self, VALUE str) {
