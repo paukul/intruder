@@ -52,7 +52,8 @@ describe Intruder::Tuple do
 
   describe "[]" do # thats some aweful duplication
     before do
-      @tuple = Tuple.new([:a, :b, :c])
+      bin = Binary.new("foo")
+      @tuple = Tuple.new([:a, :b, :c, bin])
     end
 
     it "should return the element at the given position" do
@@ -65,6 +66,11 @@ describe Intruder::Tuple do
 
     it "should return nil for numbers smaller than 0" do
       @tuple[-1].must_be_nil
+    end
+
+    it "should return binarys" do
+      @tuple[3].must_be_instance_of(Binary)
+      @tuple[3].to_s.must_equal("foo")
     end
   end
 end
