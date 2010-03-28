@@ -39,11 +39,17 @@ VALUE intruder_tuple_init(VALUE self, VALUE arr) {
 
 VALUE intruder_tuple_member_at(VALUE self, VALUE position) {
   INTRUDER_TERM *iterm;
+  Data_Get_Struct(self, INTRUDER_TERM, iterm);
+
   ETERM *member;
   int iPosition = NUM2INT(position);
-  Data_Get_Struct(self, INTRUDER_TERM, iterm);
-  member = erl_element(iPosition+1, iterm->eterm);
-  return rb_value_from_eterm(member);
+  int tuple_size = erl_size(iterm->eterm);
+  if (iPosition < 0 || tuple_size < iPosition+1) {
+    return Qnil;
+  } else {
+    member = erl_element(iPosition+1, iterm->eterm);
+    return rb_value_from_eterm(member);
+  }
 }
 
 VALUE intruder_tuple_length(VALUE self) {

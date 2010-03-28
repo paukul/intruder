@@ -49,6 +49,24 @@ describe Intruder::Tuple do
       Intruder::Tuple.new([:a]).must_be_instance_of(Intruder::Tuple)
     end
   end
+
+  describe "[]" do # thats some aweful duplication
+    before do
+      @tuple = Tuple.new([:a, :b, :c])
+    end
+
+    it "should return the element at the given position" do
+      @tuple[0].to_s.must_equal "a"
+    end
+
+    it "should return nil for numbers greater than the tuple size" do
+      @tuple[@tuple.size].must_be_nil
+    end
+
+    it "should return nil for numbers smaller than 0" do
+      @tuple[-1].must_be_nil
+    end
+  end
 end
 
 describe Intruder::List do
@@ -61,7 +79,7 @@ describe Intruder::List do
       @list[0].to_s.must_equal "a"
     end
 
-    it "should return nil for numbers greater than the array size" do
+    it "should return nil for numbers greater than the list size" do
       @list[@list.size].must_be_nil
     end
 
