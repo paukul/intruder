@@ -34,7 +34,7 @@ in erlang. Here's the content of the file echo.erl:
           {ok, Any}.
 
 Thats pretty basic stuff here. What we have here is a module called
-"echo" with a function called "that" just returns a tuple of ok plus whatever arguments it was
+"echo" with a function called "say" that just returns a tuple of ok plus whatever arguments it was
 called with. Now open your erlang shell with `erl -sname funkyzeit`
 in the same directory as your echo.erl file is located and type
 `c(echo).` (including the dot) into the console. Now you have a node
@@ -77,6 +77,8 @@ The response should be a tuple containing the atom 'ok' and our list
 of atoms we created with the Term.encode function earlier. Let's
 confirm that:
 
+    response
+    => {ok, [a, b]}
     p response.class
     => Intruder::Tuple
     response[0].to_s
@@ -102,7 +104,7 @@ Keeping nodes alive requires to constantly reply to ERL_TICK messages
 that might be send by the remote node. To handle that I'm currently
 using a "keep_alive" POSIX thread and mutexes and stuff. That's just
 because I'm a bloody noob at those kind of things (frankly, they scare
-me!). That might (hopefully) get changed soon.
+me!). That might (hopefully) change soon.
 
 .. insert more issues here ...
 
