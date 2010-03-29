@@ -20,7 +20,7 @@ fd_set socks;
 int highsock;
 int readsocks;
 int connectlist_inited = 0;
-unsigned int tmo = 1;
+unsigned int tmo = 2000;
 
 /* internal methods */
 static void declare_attr_accessors();
