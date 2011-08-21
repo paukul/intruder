@@ -14,7 +14,7 @@ VALUE intruder_binary_init(VALUE self, VALUE str) {
   INTRUDER_TERM *iterm;
   Data_Get_Struct(self, INTRUDER_TERM, iterm);
 
-  eterm = erl_mk_binary(RSTRING_PTR(str), RSTRING_LEN(str));
+  eterm = erl_mk_binary(RSTRING_PTR(str), RSTRING_LEN(str) + 1);
   iterm->eterm = eterm;
   return self;
 }
